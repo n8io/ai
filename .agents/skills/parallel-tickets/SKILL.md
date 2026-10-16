@@ -90,7 +90,7 @@ Use a structured return so you can aggregate, e.g. each scout returns:
 **The scout's exploration is reused, not repeated.** `contextPack` is markdown covering what the
 scout learned: the files this issue will touch and why, the patterns and helpers to follow,
 where its tests live and how to run them, and gotchas. Write each one to
-`<main checkout>/.claude/scratchpad/context/issue-<n>.md` with a trailing `## Findings` section,
+`<main checkout>/.agents/scratchpad/context/issue-<n>.md` with a trailing `## Findings` section,
 and pass that absolute path to the implementer. The implementer starts from it instead of
 re-exploring the codebase.
 

@@ -16,6 +16,14 @@ Always prefer these faster alternatives in shell commands:
 
 These hold in every repo. A repo's own AGENTS.md or project memory can override one, and when it does, the repo wins.
 
+### Open standards first
+
+Prefer cross-tool agentic coding standards over Claude Code-only conventions whenever a standard covers the need, so repos work the same with any agent.
+
+- **`AGENTS.md`, never `CLAUDE.md`.** Repo instructions live in `AGENTS.md` (Claude Code reads it directly, including `@` imports). Don't create a `CLAUDE.md`. When you work in a repo that has one, move its content into `AGENTS.md` and delete it in that PR.
+- Skills follow the Agent Skills format (`SKILL.md` with frontmatter) under `.agents/skills/`. Tools come through MCP. Shared working files go under `.agents/`, not `.claude/`.
+- Use a Claude-only feature (hooks, `settings.json`, permission modes, Remote Control) only when no standard does the job, and keep it out of shared instructions where you can.
+
 ### Talking to me
 
 - Talk like one person to another. Plain words, short sentences, lead with the answer. One line is often enough.
@@ -42,13 +50,13 @@ I am almost never at the machine running the sessions. I reach them through, in 
 - Grill me hard up front, so the build can run hands-free. Every question settled before code starts is one a worker never has to park on.
 - Once the questions are answered, do not ask me to review or approve the written spec or plan. Self-review it, tell me the path in one line, and keep going. Stop only for a genuinely new decision, a secret, or a risky outward action.
 - Always execute plans subagent-driven. Never ask "subagent or inline?".
-- Specs, plans and anything under `.claude/scratchpad/` are working files: write them to disk but do not commit them, unless the repo's own rules say plans ship on the branch. Stage by explicit path, never `git add -A` or `git add .`.
+- Specs, plans and anything under `.agents/scratchpad/` are working files: write them to disk but do not commit them, unless the repo's own rules say plans ship on the branch. Add `.agents/scratchpad/` to the repo's `.gitignore` if it is missing. Stage by explicit path, never `git add -A` or `git add .`.
 
 ### Shared language
 
 Each repo keeps one glossary: `CONTEXT.md` at the root, in `grill-with-docs`'s format. It is the source of truth for domain names in code, tests, UI copy, tickets, PRs and commits.
 
-- The repo's `CLAUDE.md` imports it with an `@CONTEXT.md` line so every session loads it. Add that line whenever you create the glossary or find it missing.
+- The repo's `AGENTS.md` imports it with an `@CONTEXT.md` line so every session loads it. Add that line whenever you create the glossary or find it missing.
 - Use the canonical term, never one of its `_Avoid_` aliases. Run `glossary-check` (in `~/.claude/bin`) before opening a PR; it warns on aliases in added lines, and you judge each hit.
 - A new or changed term lands in `CONTEXT.md` in the same PR that introduces it. A term I haven't agreed to is a question for me, not a guess.
 - When existing code uses another word for a glossary term, don't rename it in passing. File one rename ticket per term.

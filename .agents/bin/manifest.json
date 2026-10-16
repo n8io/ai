@@ -1,0 +1,20 @@
+{
+  "topic": "bin",
+  "description": "Helper scripts: cs session launcher and skill-budget size check",
+  "files": [
+    {
+      "src": "cs",
+      "targets": {
+        "claude": "~/.claude/bin/cs",
+        "cursor": null
+      }
+    },
+    {
+      "src": "skill-budget",
+      "targets": {
+        "claude": "~/.claude/bin/skill-budget",
+        "cursor": null
+      }
+    }
+  ]
+}

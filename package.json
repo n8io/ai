@@ -1,29 +1,14 @@
 {
-  "name": "@n8io/ai-config",
+  "name": "@n8io/ai",
   "version": "0.5.1",
-  "description": "Provider-agnostic AI coding assistant config installer",
+  "private": true,
+  "description": "Claude Code plugin marketplace: workflow skills, subagents and tooling",
   "type": "module",
-  "bin": {
-    "ai-config": "./dist/cli.js"
-  },
   "scripts": {
-    "cli": "bun cli/index.ts",
-    "build": "bun build ./cli/index.ts --outdir ./dist/ --target node --sourcemap && { printf '#!/usr/bin/env node\\n'; cat dist/index.js; } > dist/cli.js && mv dist/index.js.map dist/cli.js.map && rm dist/index.js",
-    "test": "bun test",
-    "test:node": "node dist/cli.js --help",
-    "release": "bun run build && npm publish"
-  },
-  "dependencies": {
-    "@clack/prompts": "^0.9.0",
-    "citty": "^0.1.6"
+    "test": "bun test plugins/tools/lib/gh-events/test",
+    "version": "changeset version && bash scripts/sync-versions.sh"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.30.0",
-    "@types/node": "^22.0.0",
-    "typescript": "^5.0.0"
-  },
-  "files": [
-    "dist/",
-    ".agents/"
-  ]
+    "@changesets/cli": "^2.30.0"
+  }
 }

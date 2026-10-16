@@ -6,4 +6,4 @@ node_modules/
 cache/
 
 # Skill changelogs hold private project history; they stay local
-.agents/skills/*/CHANGELOG.md
+plugins/*/skills/*/CHANGELOG.md

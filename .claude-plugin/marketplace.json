@@ -1,0 +1,24 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "n8io",
+  "description": "Workflow skills, subagents and tooling for Claude Code and other Agent Plugins clients",
+  "owner": {
+    "name": "Nate Clark",
+    "email": "n8io@users.noreply.github.com"
+  },
+  "plugins": [
+    {
+      "name": "workflow",
+      "source": "./plugins/workflow",
+      "description": "Ticket-to-merge workflow skills and subagents: ship, ticket-worker, grill, commit, PR triage and more"
+    },
+    {
+      "name": "tools",
+      "source": "./plugins/tools",
+      "description": "Claude Code tooling: helper CLIs on PATH, safety hooks, and the gh-events watcher"
+    }
+  ],
+  "allowCrossMarketplaceDependenciesOn": [
+    "claude-plugins-official"
+  ]
+}

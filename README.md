@@ -26,10 +26,10 @@ npx skills add n8io/ai
 
 ## Bootstrap
 
-Plugins do not cover your global rules, the statusline or settings. `setup/bootstrap.sh` does:
+Plugins do not cover your global rules, the statusline or settings. `setup/bootstrap.sh` does. Run it from a clone of this repo:
 
 ```
-bash setup/bootstrap.sh            # on your machine
+bash setup/bootstrap.sh            # set everything up
 bash setup/bootstrap.sh --dry-run  # print what it would do
 ```
 
@@ -37,7 +37,7 @@ It is safe to re-run and never prompts. It will:
 
 1. Add the `claude-plugins-official` and `n8io` marketplaces and install both plugins.
 2. Link `AGENTS.md` and `statusline-command.sh` into your Claude config dir (also `~/.cursor` and `~/.codex` if they exist).
-3. Merge `setup/settings.json` into `settings.json`. It adds missing keys only, never overwrites yours, never touches `hooks`.
+3. Merge `setup/settings.json` into `settings.json`. It adds missing keys and list entries only, never overwrites yours, never touches `hooks`.
 4. Link the `workflow` skills into `~/.agents/skills`.
 
 It respects `CLAUDE_CONFIG_DIR`. Set `N8IO_MARKETPLACE_SOURCE` to use a local path instead of `n8io/ai`.
@@ -52,7 +52,7 @@ git clone --depth 1 https://github.com/n8io/ai "$tmp/ai"
 bash "$tmp/ai/setup/bootstrap.sh" --cloud
 ```
 
-`setup/cloud-setup.sh` is the same thing with cleanup. `--cloud` copies files instead of linking and skips the `~/.agents/skills` links.
+`setup/cloud-setup.sh` is the same thing with cleanup. `--cloud` copies files instead of linking and skips the `~/.agents/skills` links. If the `claude` CLI is missing it still copies the rules and statusline and merges settings from the clone.
 
 ## What is in each plugin
 

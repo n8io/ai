@@ -1,8 +1,7 @@
 node_modules/
 .DS_Store
 .worktrees
-.install-manifest.json
-.sync-cache
+.agents/scratchpad/
 cache/
 
 # Skill changelogs hold private project history; they stay local

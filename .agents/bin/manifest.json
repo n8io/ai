@@ -1,6 +1,6 @@
 {
   "topic": "bin",
-  "description": "Helper scripts: cs session launcher, glossary-check and skill-budget size check",
+  "description": "Helper scripts: cs session launcher, skills-check, gh-wait/gh-events, glossary-check, skill-budget, slack-download",
   "files": [
     {
       "src": "cs",
@@ -20,6 +20,41 @@
       "src": "skill-budget",
       "targets": {
         "claude": "~/.claude/bin/skill-budget",
+        "cursor": null
+      }
+    },
+    {
+      "src": "gh-wait",
+      "targets": {
+        "claude": "~/.claude/bin/gh-wait",
+        "cursor": null
+      }
+    },
+    {
+      "src": "gh-events",
+      "targets": {
+        "claude": "~/.claude/bin/gh-events",
+        "cursor": null
+      }
+    },
+    {
+      "src": "slack-download",
+      "targets": {
+        "claude": "~/.claude/bin/slack-download",
+        "cursor": null
+      }
+    },
+    {
+      "src": "skills-check",
+      "targets": {
+        "claude": "~/.claude/bin/skills-check",
+        "cursor": null
+      }
+    },
+    {
+      "src": "skills-requirements.json",
+      "targets": {
+        "claude": "~/.claude/bin/skills-requirements.json",
         "cursor": null
       }
     }

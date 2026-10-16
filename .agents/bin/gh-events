@@ -1,0 +1,4 @@
+#!/bin/sh
+# gh-events — local GitHub event watcher (see lib/gh-events/README.md)
+here=$(dirname "$(readlink -f "$0")")
+exec node "$here/lib/gh-events/lib/run.mjs" "$@"

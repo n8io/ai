@@ -1,0 +1,5 @@
+#!/bin/sh
+# gh-wait — block until a PR reaches a state, driven by pushed events (no polling).
+# Usage: gh-wait --pr <N> --for ci|review|mergeable|any [--timeout <seconds>]
+here=$(dirname "$(readlink -f "$0")")
+exec node "$here/lib/gh-events/lib/run.mjs" wait "$@"

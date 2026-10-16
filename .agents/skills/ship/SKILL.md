@@ -18,6 +18,10 @@ Once `/ship` has run one real epic cleanly, `ticket-loop` and `parallel-tickets`
 
 ## 1. Preflight
 
+- **Requirements first.** Run `skills-check ship`. If anything is missing, list it all in one
+  AskUserQuestion (multi-select: what to install now). Install the picks with
+  `skills-check --install <id>…`; name the rest as blockers before going further. For each
+  "check in the session" line, look for the tool prefix with ToolSearch.
 - Repo on clean `main`, `gh auth status` OK, `tmux` present.
 - This session should have been started with `cs` (bypassed permissions, Chrome, Remote
   Control). If `echo "$TMUX"` is empty or the permission mode is not bypass, say so once: workers

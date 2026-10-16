@@ -64,6 +64,34 @@
         "claude": "~/.claude/skills/parallel-tickets",
         "cursor": null
       }
+    },
+    {
+      "src": "progress-tracker",
+      "targets": {
+        "claude": "~/.claude/skills/progress-tracker",
+        "cursor": null
+      }
+    },
+    {
+      "src": "gh-events",
+      "targets": {
+        "claude": "~/.claude/skills/gh-events",
+        "cursor": null
+      }
+    },
+    {
+      "src": "slack",
+      "targets": {
+        "claude": "~/.claude/skills/slack",
+        "cursor": null
+      }
+    },
+    {
+      "src": "slack-triage",
+      "targets": {
+        "claude": "~/.claude/skills/slack-triage",
+        "cursor": null
+      }
     }
   ]
 }

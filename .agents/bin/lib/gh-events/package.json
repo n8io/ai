@@ -1,0 +1,9 @@
+{
+  "name": "gh-events",
+  "private": true,
+  "type": "module",
+  "description": "Local GitHub event watcher — replaces gh polling with pushed webhook events",
+  "scripts": {
+    "test": "node --test 'test/*.test.mjs'"
+  }
+}

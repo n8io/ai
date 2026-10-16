@@ -14,11 +14,10 @@ Ends at filed tickets. Do not start implementing.
 ## 1. Grill
 
 Interview the user down every branch of the design, one question at a time, with your
-recommended answer for each (`grill-me`; use `grill-with-docs` when the repo has a
-`CONTEXT.md` or ADRs). If the code can answer a question, read the code instead of asking.
+recommended answer for each, always with `grill-with-docs`: it challenges terms against
+`CONTEXT.md` and records each settled term there as it happens (creating the file and its
+`CLAUDE.md` import if missing). If the code can answer a question, read the code instead of asking.
 
-- Name domain concepts in the user's own words: ask for the sentence they would say, do not
-  invent terms.
 - Settle scope edges explicitly: what is in, what is out, what is deferred and why.
 - Keep going until a worker could build every ticket without a clarifying question.
 
@@ -71,6 +70,9 @@ In, out, and deferred (with why).
 
 **Settled decisions**
 Every answer from the grilling and the prototype pick that applies here. Workers treat these as final.
+
+**Terms**
+The `CONTEXT.md` terms this ticket uses or adds. Name things in code with exactly these.
 
 **Owned files**
 `path/or/dir` — one line on why. Workers stay inside these unless the code proves otherwise.

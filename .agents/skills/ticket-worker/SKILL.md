@@ -29,6 +29,9 @@ issues, never touch any other issue.
   exploration pass someone already paid for: relevant files, patterns, test layout, commands,
   gotchas. Trust it. Explore only what it does not cover, and stay inside the files it lists
   for your ticket unless the code proves you need more.
+- **Speak the glossary.** Name everything with the ticket's **Terms** and `CONTEXT.md`. A term
+  you need that is not there is a question (section 3), not an invention. Add agreed terms to
+  `CONTEXT.md` in this PR, and run `glossary-check` before opening it.
 - Before you finish, **append what you learned** to the pack's `## Findings` section: one dated
   line each for gotchas, wrong assumptions in the pack, and seams you left for later tickets.
   Later tickets start from what you found.

@@ -31,7 +31,7 @@ Use AskUserQuestion (skip any the user already specified):
 
 ### 2. Pre-select N distinct, implementation-ready issues
 
-Rank and exclude per `next-issue`'s `references/ticket-selection.md`. On top of that:
+Rank and exclude per `../next-issue/references/ticket-selection.md`. On top of that:
 
 - **Conflict-aware selection**: within a batch, prefer issues touching disjoint surfaces. If
   two candidates would edit the same page/component/context concurrently, take the
@@ -42,7 +42,7 @@ Rank and exclude per `next-issue`'s `references/ticket-selection.md`. On top of 
 ### 3. Pre-claim (kills the race)
 
 Claim every selected issue up front with the REST claim command in
-`next-issue`'s `references/ticket-selection.md`, before any scout runs.
+`../next-issue/references/ticket-selection.md`, before any scout runs.
 
 ### 4. Scout phase — surface clarifying questions (parallel, READ-ONLY)
 
@@ -170,7 +170,7 @@ say so and add nothing.
   rebase churn with diminishing return.
 - With 3 agents + orchestrator polling, the GraphQL quota (`gh ... --json`, `gh issue edit`,
   `gh label create`) runs out and is often already gone at session start. Use REST for
-  selection and claiming (per `ticket-selection.md`) and for poll loops (`gh api .../check-runs`).
+  selection and claiming (per `../next-issue/references/ticket-selection.md`) and for poll loops (`gh api .../check-runs`).
   For orchestrator check-ins use git protocol (`git ls-remote`, `git fetch` + `git log
   origin/main`): zero API cost, and "branch gone + main advanced" still answers "did it merge?".
 - Never run two agents on one worktree (see `references/recovery.md` for stranded PRs).

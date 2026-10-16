@@ -12,8 +12,9 @@ dependency graph of tickets, explores the code once into a context pack, then ru
 ticket in parallel in its own tmux worker, dispatching dependents the moment their blockers merge.
 
 Built on: `idea-to-tickets` (grill and decompose), `ticket-worker` (the worker contract),
-`next-issue` (the per-ticket steps and `references/ticket-selection.md`), `ticket-loop`'s
-`references/kickoff.md` and `references/orchestrator-gotchas.md`, and `progress-tracker`.
+`next-issue` (the per-ticket steps and `../next-issue/references/ticket-selection.md`),
+`../ticket-loop/references/kickoff.md` and `../ticket-loop/references/orchestrator-gotchas.md`
+(paths relative to this skill's directory), and `progress-tracker`.
 Once `/ship` has run one real epic cleanly, `ticket-loop` and `parallel-tickets` retire.
 
 ## 1. Preflight
@@ -47,7 +48,7 @@ Classify the input and build the graph.
   links). For tickets missing owned files or a context pack, run one read-only exploration pass
   to fill them in and add the owned files to each body. Re-grill only if a ticket still has
   open questions.
-- **Nothing (backlog mode).** The ready set comes from `references/ticket-selection.md`. Run
+- **Nothing (backlog mode).** The ready set comes from `../next-issue/references/ticket-selection.md`. Run
   one exploration pass over the selected tickets to build a shared context pack.
 
 The context pack lives at `<main checkout>/.agents/scratchpad/context/<run-slug>.md`, never
@@ -80,7 +81,7 @@ change the cap per run).
 For each dispatched ticket:
 
 1. Claim it with the `in-progress` label (selection reference).
-2. Write its kickoff with the template in `ticket-loop`'s `references/kickoff.md`, mode `push`.
+2. Write its kickoff with the template in `../ticket-loop/references/kickoff.md`, mode `push`.
    Include: `Orchestrator: <name> [<ref>]`; the context pack path and the ticket's section in it; owned files; the owned files
    of every other live ticket ("do not edit these; report kind 2 if you must"); the tracker URL
    and this ticket's step id; settled decisions; predecessor notes from blockers that merged.
@@ -108,7 +109,7 @@ update the step yourself from its reports.
 
 Waiting: push mode keeps one ~1800s fallback wakeup and otherwise sleeps until a report
 arrives. Everything else (stuck workers, pane drafts, expired logins, merge blocks) follows
-`ticket-loop`'s `references/orchestrator-gotchas.md`.
+`../ticket-loop/references/orchestrator-gotchas.md`.
 
 ## 5. Integration check (epics and multi-ticket runs)
 

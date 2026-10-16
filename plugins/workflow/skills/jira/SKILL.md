@@ -10,8 +10,10 @@ Fetch JIRA ticket details, comments, and attachments via `jcfa` in Docker.
 ## Setup
 
 ```bash
-docker image inspect jcfa:latest >/dev/null 2>&1 || docker build -t jcfa:latest "$HOME/.claude/skills/jira/"
+docker image inspect jcfa:latest >/dev/null 2>&1 || docker build -t jcfa:latest "${CLAUDE_SKILL_DIR}"
 ```
+
+`${CLAUDE_SKILL_DIR}` is this skill's directory (it holds the Dockerfile); outside Claude Code use that path.
 
 If `$HOME/.jcfa/` does not exist (or auth has expired), the user must run first-time auth setup **in their own terminal** (interactive):
 

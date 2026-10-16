@@ -43,7 +43,7 @@ References, read when the situation calls for them:
 
 The user is usually about to walk away. Settle everything that needs them now, in one sitting.
 
-1. List the ready queue in run order per `next-issue`'s `references/ticket-selection.md`.
+1. List the ready queue in run order per `../next-issue/references/ticket-selection.md`.
 2. For each ticket in the queue, one quick REST body read, looking for anything only the user
    can supply: product, privacy or UX calls in an "Open questions" section, decision-first
    tickets, visual picks, secrets, a production query result, a device or account step.
@@ -59,7 +59,7 @@ The user is usually about to walk away. Settle everything that needs them now, i
 
 ## 3. Select and claim ONE issue
 
-Follow `next-issue`'s `references/ticket-selection.md`: rank, exclude, notice siblings, claim
+Follow `../next-issue/references/ticket-selection.md`: rank, exclude, notice siblings, claim
 with the `in-progress` label before spawning. If nothing is ready, report the next ticket that
 needs grooming and end the loop.
 

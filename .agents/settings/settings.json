@@ -1,60 +1,18 @@
 {
   "permissions": {
-    "defaultMode": "default"
-  },
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/prompt-injection-guard.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/tool-guard.sh",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/tool-guard.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/session-start.sh",
-            "timeout": 30
-          }
-        ]
-      }
+    "defaultMode": "auto",
+    "additionalDirectories": [
+      "~/code"
     ]
   },
+  "model": "fable",
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "claude-mem@thedotmack": true,
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": true,
+    "claude-mem@thedotmack": true
   },
   "extraKnownMarketplaces": {
     "thedotmack": {
@@ -64,5 +22,9 @@
       }
     }
   },
-  "skipDangerousModePermissionPrompt": true
+  "effortLevel": "medium",
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true
 }

@@ -92,6 +92,13 @@
         "claude": "~/.claude/skills/slack-triage",
         "cursor": null
       }
+    },
+    {
+      "src": "verify",
+      "targets": {
+        "claude": "~/.claude/skills/verify",
+        "cursor": "~/.cursor/skills/verify"
+      }
     }
   ]
 }

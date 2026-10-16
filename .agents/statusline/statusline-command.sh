@@ -228,7 +228,9 @@ if [ -n "$five_h_pct" ] && [ "$five_h_pct" != "0" ] && [ "$five_h_pct" != "null"
       fi
     fi
   fi
-  five_h_info="${pace_emoji:+${pace_emoji} }${fh_color}${five_h_pct}%/5h${reset_part}"
+  OSC8_OPEN=$'\033]8;;https://claude.ai/settings/usage\033\\'
+  OSC8_CLOSE=$'\033]8;;\033\\'
+  five_h_info="${OSC8_OPEN}${pace_emoji:+${pace_emoji} }${fh_color}${five_h_pct}%/5h${reset_part}${RESET}${OSC8_CLOSE}"
 fi
 
 # Claude Code usage stats — progress bar via string slicing (no subprocesses)

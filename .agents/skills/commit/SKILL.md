@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Commit message format with gitmojis
+description: Write a commit message in this repo's gitmoji format. Use when composing or amending a commit message, or when asked to commit staged work. Covers gitmoji selection, subject-line shape, and ticket references.
 argument-hint: [ticket-number]
 allowed-tools: Bash, AskUserQuestion
 model: haiku

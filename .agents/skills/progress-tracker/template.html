@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Build Progress</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow column, like a build sheet: header, meter, live task, steps, log. */
+:root {
+  --bg: #f3f5f7;
+  --panel: #ffffff;
+  --ink: #17202b;
+  --muted: #566273;
+  --line: #d9dfe6;
+  --accent: #0f6c74;
+  --accent-soft: #dff0f1;
+  --done: #1d6b3a; --done-soft: #e2f3e7;
+  --active: #8a4b00; --active-soft: #fdf0dc;
+  --review: #4b3fa8; --review-soft: #ebe8fb;
+  --blocked: #a1222b; --blocked-soft: #fbe4e5;
+  --todo: #566273; --todo-soft: #eef1f4;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11161c; --panel: #1a2129; --ink: #e8edf2; --muted: #9aa7b6; --line: #2c3540;
+  --accent: #5cc6cf; --accent-soft: #163338;
+  --done: #74d394; --done-soft: #17301f;
+  --active: #f2b660; --active-soft: #33260f;
+  --review: #aea4f5; --review-soft: #252148;
+  --blocked: #f28b91; --blocked-soft: #3a1a1d;
+  --todo: #9aa7b6; --todo-soft: #222a33;
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #11161c; --panel: #1a2129; --ink: #e8edf2; --muted: #9aa7b6; --line: #2c3540;
+  --accent: #5cc6cf; --accent-soft: #163338;
+  --done: #74d394; --done-soft: #17301f;
+  --active: #f2b660; --active-soft: #33260f;
+  --review: #aea4f5; --review-soft: #252148;
+  --blocked: #f28b91; --blocked-soft: #3a1a1d;
+  --todo: #9aa7b6; --todo-soft: #222a33;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body); }
+[hidden] { display: none !important; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 48px; display: grid; gap: 22px; }
+header { display: grid; gap: 6px; }
+.eyebrow { font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 800 clamp(28px, 6vw, 40px)/1.05 var(--display); margin: 0; text-wrap: balance; }
+.now { margin: 4px 0 0; font-size: 16px; color: var(--ink); }
+.stamp { font: 400 12px var(--mono); color: var(--muted); }
+.meter { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; }
+.meter-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.big { font: 800 30px/1 var(--display); font-variant-numeric: tabular-nums; }
+.big small { font: 500 14px var(--body); color: var(--muted); margin-left: 6px; }
+.bar { height: 10px; border-radius: 99px; background: var(--todo-soft); overflow: hidden; display: flex; }
+.bar span { height: 100%; transition: width .4s ease; }
+.counts { display: flex; flex-wrap: wrap; gap: 8px; }
+h2 { font: 600 13px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+ol.steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+ol.steps li { display: grid; grid-template-columns: 2.4em 1fr auto; gap: 4px 12px; padding: 12px 4px; border-bottom: 1px solid var(--line); align-items: start; }
+ol.steps li.is-active { background: var(--active-soft); border-radius: 8px; border-bottom-color: transparent; }
+.num { font: 500 13px var(--mono); color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
+.title { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.note { grid-column: 2 / 4; color: var(--muted); font-size: 14px; min-width: 0; overflow-wrap: anywhere; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font: 500 12px var(--mono); padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+.chip::before { font-family: var(--body); }
+.s-done { color: var(--done); background: var(--done-soft); } .s-done::before { content: "✓"; }
+.s-active { color: var(--active); background: var(--active-soft); } .s-active::before { content: "●"; }
+.s-review { color: var(--review); background: var(--review-soft); } .s-review::before { content: "◆"; }
+.s-blocked { color: var(--blocked); background: var(--blocked-soft); } .s-blocked::before { content: "!"; font-weight: 700; }
+.s-todo { color: var(--todo); background: var(--todo-soft); } .s-todo::before { content: "○"; }
+li.is-active .s-active { background: var(--panel); }
+ul.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+ul.log li { display: grid; grid-template-columns: 5.5em 1fr; gap: 12px; font-size: 14px; }
+ul.log time { font: 400 12px var(--mono); color: var(--muted); padding-top: 2px; }
+ul.log span { min-width: 0; overflow-wrap: anywhere; }
+.empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
+.live { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--active); border-radius: 10px; padding: 16px; display: grid; gap: 6px; }
+.live-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.live-title { font: 600 20px/1.25 var(--display); text-wrap: balance; overflow-wrap: anywhere; }
+.live-status { display: flex; gap: 10px; align-items: baseline; font-size: 15px; min-width: 0; overflow-wrap: anywhere; }
+.pulse { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--active); transform: translateY(-1px); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+.model { font: 500 12px var(--mono); color: var(--accent); background: var(--accent-soft); padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+.title .model { margin-left: 8px; vertical-align: 1px; }
+.ticket { justify-self: start; display: inline-flex; gap: 8px; align-items: baseline; max-width: 100%; font-size: 14px; color: var(--ink); text-decoration: none; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; }
+a.ticket:hover { border-color: var(--accent); }
+.ticket b { font: 500 13px var(--mono); color: var(--accent); white-space: nowrap; }
+.ticket span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sub { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); min-width: 0; }
+.pips { display: flex; gap: 3px; flex: none; }
+.pips i { width: 14px; height: 6px; border-radius: 3px; background: var(--todo-soft); border: 1px solid var(--line); }
+.pips i.d { background: var(--done); border-color: var(--done); }
+.pips i.c { background: var(--active); border-color: var(--active); }
+.subcount { font: 500 12px var(--mono); color: var(--muted); margin-left: 8px; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .pulse { animation: none; } .bar span { transition: none; } }
+@media (max-width: 480px) { ol.steps li { grid-template-columns: 2em 1fr; } ol.steps .chip { grid-column: 2; justify-self: start; } .note { grid-column: 2; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow" id="stage">__STAGE__</div>
+    <a class="ticket" id="ticket" hidden target="_blank" rel="noopener"><b id="ticket-key"></b><span id="ticket-title"></span></a>
+    <h1 id="phase">__PHASE__</h1>
+    <p class="now" id="now">Waiting for the first update from Claude.</p>
+    <div class="stamp" id="stamp"></div>
+  </header>
+
+  <section class="meter" aria-label="Progress">
+    <div class="meter-top">
+      <div class="big" id="pct">0%<small id="ratio">no steps yet</small></div>
+      <div class="counts" id="counts"></div>
+    </div>
+    <div class="bar" id="bar" role="img" aria-label="Progress bar"></div>
+  </section>
+
+  <section class="live" id="live" hidden aria-live="polite">
+    <div class="live-top">
+      <span class="eyebrow">Active task</span>
+      <span class="model" id="live-model"></span>
+    </div>
+    <div class="live-title" id="live-title"></div>
+    <div class="live-status"><span class="pulse" aria-hidden="true"></span><span id="live-status"></span></div>
+    <div class="sub" id="live-sub" hidden><span class="pips" id="live-pips" aria-hidden="true"></span><span id="live-sub-text"></span></div>
+    <div class="stamp" id="live-stamp"></div>
+  </section>
+
+  <section>
+    <h2>Steps</h2>
+    <ol class="steps" id="steps"><li class="empty" style="display:block">Steps appear here once the plan is written.</li></ol>
+  </section>
+
+  <section>
+    <h2>Recent updates</h2>
+    <ul class="log" id="log"><li class="empty" style="display:block">No updates yet.</li></ul>
+  </section>
+</div>
+
+<script>
+const LABEL = { done: "Done", active: "Building", review: "Reviewing", blocked: "Blocked", todo: "To do" };
+const ORDER = ["done", "review", "active", "blocked", "todo"];
+const $ = (id) => document.getElementById(id);
+const DEFAULT_STAGE = $("stage").textContent, DEFAULT_PHASE = $("phase").textContent;
+let steps = [], meta = null, log = [];
+
+function ago(ms) {
+  if (!ms) return "";
+  const s = Math.max(0, (Date.now() - ms) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s / 60) + " min ago";
+  if (s < 86400) return Math.floor(s / 3600) + " h ago";
+  return new Date(ms).toLocaleDateString();
+}
+function clock(ms) { return new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); }
+function subText(sub, status) {
+  const total = Math.max(0, sub.total | 0), done = Math.min(total, Math.max(0, sub.done | 0));
+  const label = sub.label ? " " + sub.label : "";
+  if (done >= total) return total + " of " + total + label + " done";
+  return (status === "active" || status === "review" ? "On " + (done + 1) : done + " done") + " of " + total + label;
+}
+function chip(status) {
+  const s = LABEL[status] ? status : "todo";
+  const el = document.createElement("span");
+  el.className = "chip s-" + s; el.textContent = LABEL[s];
+  return el;
+}
+
+function render() {
+  if (meta) {
+    $("stage").textContent = meta.stage || DEFAULT_STAGE;
+    $("phase").textContent = meta.phase || DEFAULT_PHASE;
+    $("now").textContent = meta.now || "";
+    const tk = meta.ticket, a = $("ticket");
+    a.hidden = !(tk && (tk.key || tk.title));
+    if (!a.hidden) {
+      $("ticket-key").textContent = tk.key || "";
+      $("ticket-title").textContent = tk.title || "";
+      if (/^https?:\/\//.test(tk.url || "")) a.href = tk.url; else a.removeAttribute("href");
+      a.title = [tk.key, tk.title].filter(Boolean).join(" · ");
+    }
+  }
+  const newest = Math.max(meta?.updatedAt || 0, ...steps.map((s) => s.updatedAt || 0), ...log.map((l) => l.at || 0));
+  $("stamp").textContent = newest ? "Updated " + ago(newest) : "";
+
+  const total = steps.length, by = {};
+  for (const s of steps) { const k = LABEL[s.status] ? s.status : "todo"; by[k] = (by[k] || 0) + 1; }
+  const done = by.done || 0;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  $("pct").firstChild.nodeValue = pct + "%";
+  $("ratio").textContent = total ? done + " of " + total + " steps done" : "no steps yet";
+  const bar = $("bar"); bar.replaceChildren();
+  bar.setAttribute("aria-label", pct + "% done");
+  for (const k of ORDER) if (by[k] && k !== "todo") {
+    const span = document.createElement("span");
+    span.style.width = (by[k] / total) * 100 + "%";
+    span.style.background = "var(--" + k + ")";
+    bar.append(span);
+  }
+  const counts = $("counts"); counts.replaceChildren();
+  for (const k of ORDER) if (by[k]) { const c = chip(k); c.textContent = LABEL[k] + " " + by[k]; counts.append(c); }
+
+  const list = $("steps");
+  if (total) {
+    list.replaceChildren(...steps.map((s, i) => {
+      const li = document.createElement("li");
+      if (s.status === "active") li.className = "is-active";
+      const n = document.createElement("span"); n.className = "num"; n.textContent = String(s.order ?? i + 1).padStart(2, "0");
+      const t = document.createElement("span"); t.className = "title"; t.textContent = s.title || "Untitled step";
+      if (s.model) { const m = document.createElement("span"); m.className = "model"; m.textContent = s.model; t.append(m); }
+      if (s.sub && s.sub.total) { const c = document.createElement("span"); c.className = "subcount"; c.textContent = Math.min(s.sub.done | 0, s.sub.total) + "/" + s.sub.total; t.append(c); }
+      li.append(n, t, chip(s.status));
+      if (s.note) { const p = document.createElement("span"); p.className = "note"; p.textContent = s.note; li.append(p); }
+      return li;
+    }));
+  }
+  const act = steps.find((s) => s.status === "active" || s.status === "review");
+  $("live").hidden = !act;
+  if (act) {
+    $("live-title").textContent = String(act.order ?? "").padStart(2, "0") + " · " + (act.title || "");
+    $("live-model").textContent = act.model || "";
+    $("live-model").hidden = !act.model;
+    $("live-status").textContent = act.live || LABEL[act.status];
+    const sub = act.sub && act.sub.total ? act.sub : null;
+    $("live-sub").hidden = !sub;
+    if (sub) {
+      const total = Math.min(sub.total | 0, 20), done = Math.min(sub.done | 0, total);
+      $("live-pips").replaceChildren(...Array.from({ length: total }, (_, i) => {
+        const p = document.createElement("i"); if (i < done) p.className = "d"; else if (i === done) p.className = "c"; return p;
+      }));
+      $("live-sub-text").textContent = subText(sub, act.status);
+    }
+    $("live-stamp").textContent = (act.liveAt || act.updatedAt) ? "Status from " + ago(act.liveAt || act.updatedAt) : "";
+  }
+  const ul = $("log");
+  if (log.length) {
+    ul.replaceChildren(...log.map((l) => {
+      const li = document.createElement("li");
+      const t = document.createElement("time"); t.textContent = l.at ? clock(l.at) : "";
+      if (l.at) t.title = new Date(l.at).toLocaleString();
+      const s = document.createElement("span"); s.textContent = l.text || "";
+      li.append(t, s); return li;
+    }));
+  }
+}
+
+(async () => {
+  render();
+  const db = await claude.use("db");
+  if (!db) { $("now").textContent = "Sign in to claude.ai to see live progress."; return; }
+  db.collection("steps").orderBy("order").onSnapshot((snap) => { steps = snap.docs.map((d) => d.data()); render(); });
+  db.doc("meta/current").onSnapshot((snap) => { meta = snap.data() || null; render(); });
+  db.collection("log").orderBy("at", "desc").limit(30).onSnapshot((snap) => { log = snap.docs.map((d) => d.data()); render(); });
+})();
+setInterval(render, 30000);
+</script>
+</body>
+</html>

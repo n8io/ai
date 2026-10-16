@@ -1,0 +1,14 @@
+#!/bin/bash
+# Download a Slack file (url_private) using slackcli browser tokens.
+# Usage: slack-download <url_private> <out-path>
+set -euo pipefail
+[ $# -eq 2 ] || { echo "usage: slack-download <url_private> <out-path>" >&2; exit 2; }
+cfg="$HOME/.config/slackcli/workspaces.json"
+xoxc=$(jq -r '[.. | strings | select(startswith("xoxc-"))][0] // empty' "$cfg")
+xoxd=$(jq -r '[.. | strings | select(startswith("xoxd-"))][0] // empty' "$cfg")
+[ -n "$xoxc" ] && [ -n "$xoxd" ] || { echo "slack-download: no browser tokens in $cfg" >&2; exit 1; }
+# The d cookie must reach Slack percent-encoded; configs store it either way,
+# so try the stored form first, then the @uri-encoded form.
+try() { curl -fsSL -H "Authorization: Bearer $xoxc" -H "Cookie: d=$1" "$2" -o "$3"; }
+try "$xoxd" "$1" "$2" || try "$(jq -rn --arg v "$xoxd" '$v|@uri')" "$1" "$2"
+file "$2" >&2

@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""skills-check — list what a workflow skill needs that this machine is missing.
+
+Usage:
+  skills-check <skill>...            report missing requirements for these skills (and what they use)
+  skills-check --all                 check every skill in the list
+  skills-check --install <id>...     run the install command for requirements the user approved
+
+Requirements live in skills-requirements.json next to this script. Kinds:
+  skill:<name>  installed under ~/.claude/skills or ~/.agents/skills
+  plugin:, gh-ext:  checked with the entry's "check" command
+  bin:<name>    on PATH or in ~/.claude/bin
+  cli:<name>    on PATH
+  mcp:, session:  only the running session can see these; listed so it checks them itself
+
+Exit 0 when nothing is missing, 1 otherwise. Never installs without --install.
+"""
+import json
+import os
+import shutil
+import subprocess
+import sys
+
+HOME = os.path.expanduser("~")
+HERE = os.path.dirname(os.path.realpath(__file__))
+REQS = json.load(open(os.path.join(HERE, "skills-requirements.json")))
+SKILLS, ITEMS = REQS["skills"], REQS["requirements"]
+
+
+def closure(names):
+    seen, order, stack = set(), [], [f"skill:{n}" for n in names]
+    while stack:
+        rid = stack.pop()
+        if rid in seen:
+            continue
+        seen.add(rid)
+        order.append(rid)
+        kind, _, name = rid.partition(":")
+        if kind == "skill" and name in SKILLS:
+            stack.extend(SKILLS[name])
+        stack.extend(ITEMS.get(rid, {}).get("requires", []))
+    return order
+
+
+def present(rid):
+    kind, _, name = rid.partition(":")
+    item = ITEMS.get(rid, {})
+    if "check" in item:
+        return subprocess.run(item["check"], shell=True).returncode == 0
+    if kind == "skill":
+        return any(os.path.isfile(os.path.join(HOME, d, "skills", name, "SKILL.md")) for d in (".claude", ".agents"))
+    if kind == "bin":
+        return bool(shutil.which(name)) or os.access(os.path.join(HOME, ".claude", "bin", name), os.X_OK)
+    if kind == "cli":
+        return bool(shutil.which(name))
+    return None  # mcp:, session: — the session checks these
+
+
+def report(names):
+    unknown = [n for n in names if n not in SKILLS]
+    if unknown:
+        print(f"skills-check: not in the list: {', '.join(unknown)}", file=sys.stderr)
+    installable, human, session = [], [], []
+    aiconfig = []
+    for rid in closure([n for n in names if n in SKILLS]):
+        kind, _, name = rid.partition(":")
+        item = ITEMS.get(rid) or ({"provider": "ai-config"} if kind == "skill" and name in SKILLS else {})
+        ok = present(rid)
+        if ok is None:
+            session.append(f"  {rid}  (session check: {item.get('session', '?')}; if missing: {item.get('human', '')})")
+        elif not ok:
+            if item.get("provider") == "ai-config":
+                aiconfig.append(rid)
+            elif "install" in item:
+                then = f"; then {item['then']}" if "then" in item else ""
+                installable.append(f"  {rid}  — `{item['install']}`{then}")
+            else:
+                human.append(f"  {rid}  — {item.get('human', 'install by hand')}")
+    if aiconfig:
+        cmd = AICONFIG_UPDATE if shutil.which("ai-config") else AICONFIG_SETUP
+        installable.insert(0, f"  ai-config  — `{cmd}` (provides {', '.join(aiconfig)})")
+    if installable:
+        print("Missing, installable by the session (skills-check --install <id>):", *installable, sep="\n")
+    if human:
+        print("Missing, other:", *human, sep="\n")
+    if session:
+        print("Check in the session:", *session, sep="\n")
+    if not installable and not human:
+        print("skills-check: nothing missing" + (" (session checks above still apply)" if session else ""))
+        return 0
+    return 1
+
+
+AICONFIG_SETUP = "bunx @n8io/ai-config install --yes"
+AICONFIG_UPDATE = "ai-config update --yes"
+
+
+def install(ids):
+    rc = 0
+    for rid in ids:
+        if rid == "ai-config":
+            cmd = AICONFIG_UPDATE if shutil.which("ai-config") else AICONFIG_SETUP
+        else:
+            cmd = ITEMS.get(rid, {}).get("install")
+        if not cmd:
+            print(f"skills-check: {rid} has no install command", file=sys.stderr)
+            rc = 1
+            continue
+        print(f"$ {cmd}")
+        rc |= subprocess.run(cmd, shell=True).returncode
+    return 1 if rc else 0
+
+
+def main(argv):
+    if not argv or argv[0] in ("-h", "--help"):
+        print(__doc__.strip())
+        return 0
+    if argv[0] == "--install":
+        return install(argv[1:])
+    if argv[0] == "--all":
+        return report(list(SKILLS))
+    return report(argv)
+
+
+sys.exit(main(sys.argv[1:]))

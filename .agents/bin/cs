@@ -25,12 +25,20 @@ slug="$(printf '%s' "$label" | tr -cs 'A-Za-z0-9_-' '-' | sed 's/^-*//;s/-*$//' 
 cmd=(claude --name "$slug" --remote-control "$label" --permission-mode bypassPermissions --chrome "$@")
 
 # A folder Claude Code has never opened shows a "trust this folder?" screen, and Remote Control
-# does not connect until someone answers it. For the user's own repos under ~/code, answer it
-# once from a short background watcher. Anywhere else the screen stays for a human.
-trust_dir="$PWD"
+# does not connect until someone answers it. When the folder is a git repo whose GitHub owner is
+# trusted, answer it once from a short background watcher. Anywhere else the screen stays for a
+# human. Trusted owners: $CS_TRUST_OWNERS (space-separated), else the logged-in gh user.
+owned_repo() {
+  local url owner owners
+  url="$(git remote get-url origin 2>/dev/null)" || return 1
+  owner="$(printf '%s' "$url" | sed -nE 's#.*github\.com[:/]([^/]+)/.*#\1#p')"
+  [[ -n "$owner" ]] || return 1
+  owners="${CS_TRUST_OWNERS:-$(gh api user --jq .login 2>/dev/null)}"
+  [[ " $owners " == *" $owner "* ]]
+}
 answer_trust() {
   local target="$1"
-  case "$trust_dir/" in "$HOME/code/"*) ;; *) return 0 ;; esac
+  owned_repo || return 0
   ( for _ in $(seq 1 40); do
       sleep 0.5
       if tmux capture-pane -p -t "$target" 2>/dev/null | grep -q 'Yes, I trust this folder'; then

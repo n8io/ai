@@ -1,5 +1,0 @@
----
-"@n8io/ai": minor
----
-
-Apply the 2026-10-16 skills retro (slideshow epic). `ship` and `ticket-worker` get a Projects mode (`ship/references/projects-mode.md`) for claude.ai Projects threads: one thread per ticket, thread checklists instead of the tracker, `subscribe_pr_activity` instead of `gh-wait`, the Copilot loop only when the repo has a review bot, evidence in project files, no review request to the PR's own author. Ship adds an environment preflight for the epic's external hosts and asks whether more tickets are coming before the integration check. Workers run fast gates plus the touched area's e2e specs, skip the repo's known failures on main, keep screenshots out of context and re-read memory files before editing. Size budgets count production lines only. `tool-guard.sh` checks git `--force` per command segment, so `git worktree remove --force`, `pkill -f` and `rm -rf` next to git are no longer blocked. `skills-check` shows cloud equivalents, installs fall back to apt without Homebrew, and stale text is fixed (gh-wait background vs foreground, `gh issue edit`, the ticket-loop handshake, gh-events REST call counts).

@@ -46,7 +46,7 @@ Classify the input and build the graph.
 - **Nothing (backlog mode).** The ready set comes from `references/ticket-selection.md`. Run
   one exploration pass over the selected tickets to build a shared context pack.
 
-The context pack lives at `<main checkout>/.claude/scratchpad/context/<run-slug>.md`, never
+The context pack lives at `<main checkout>/.agents/scratchpad/context/<run-slug>.md`, never
 committed. It has a section per ticket and a `## Findings` section workers append to.
 
 ## 3. Before you leave

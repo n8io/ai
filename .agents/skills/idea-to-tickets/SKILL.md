@@ -16,7 +16,7 @@ Ends at filed tickets. Do not start implementing.
 Interview the user down every branch of the design, one question at a time, with your
 recommended answer for each, always with `grill-with-docs`: it challenges terms against
 `CONTEXT.md` and records each settled term there as it happens (creating the file and its
-`CLAUDE.md` import if missing). If the code can answer a question, read the code instead of asking.
+`AGENTS.md` import if missing). If the code can answer a question, read the code instead of asking.
 
 - Settle scope edges explicitly: what is in, what is out, what is deferred and why.
 - Keep going until a worker could build every ticket without a clarifying question.
@@ -33,7 +33,7 @@ Grep every factual claim you are about to write into a ticket: counts, field nam
 "only caller", "unused". They are routinely wrong. Record what the code actually shows.
 
 Save what you learned exploring as a **context pack** at
-`<main checkout>/.claude/scratchpad/context/<slug>.md`: relevant files and why, patterns and
+`<main checkout>/.agents/scratchpad/context/<slug>.md`: relevant files and why, patterns and
 helpers to follow, test layout and commands, gotchas, and an empty `## Findings` section.
 Each ticket body points at it so workers start from it instead of re-exploring.
 
@@ -87,7 +87,7 @@ Observable checks a reviewer can run.
 ~N files / ~M added lines, including tests.
 
 **Context pack**
-`.claude/scratchpad/context/<slug>.md`
+`.agents/scratchpad/context/<slug>.md`
 ```
 
 No "Open questions" section on a ready ticket. If one has an open question, it is not ready:

@@ -8,7 +8,7 @@ Usage:
 
 Requirements live in skills-requirements.json next to this script. Kinds:
   skill:<name>  shipped by a plugin ("provider"), or found under ~/.claude/skills, ~/.agents/skills
-                or an installed plugin's skills/ dir
+                or an installed plugin's skills/ dir (CLAUDE_CONFIG_DIR replaces ~/.claude)
   plugin:, gh-ext:  checked with the entry's "check" command
   bin:<name>    shipped by a plugin ("provider"), or on PATH
   cli:<name>    on PATH
@@ -16,6 +16,7 @@ Requirements live in skills-requirements.json next to this script. Kinds:
 
 Exit 0 when nothing is missing, 1 otherwise. Never installs without --install.
 """
+import glob
 import json
 import os
 import shutil
@@ -23,6 +24,7 @@ import subprocess
 import sys
 
 HOME = os.path.expanduser("~")
+CONFIG = os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(HOME, ".claude")
 HERE = os.path.dirname(os.path.realpath(__file__))
 REQS = json.load(open(os.path.join(HERE, "skills-requirements.json")))
 SKILLS, ITEMS = REQS["skills"], REQS["requirements"]
@@ -49,7 +51,9 @@ def present(rid):
     if "check" in item:
         return subprocess.run(item["check"], shell=True).returncode == 0
     if kind == "skill":
-        return any(os.path.isfile(os.path.join(HOME, d, "skills", name, "SKILL.md")) for d in (".claude", ".agents"))
+        dirs = [os.path.join(CONFIG, "skills"), os.path.join(HOME, ".agents", "skills")]
+        dirs += glob.glob(os.path.join(CONFIG, "plugins", "cache", "*", "*", "*", "skills"))
+        return any(os.path.isfile(os.path.join(d, name, "SKILL.md")) for d in dirs)
     if kind == "bin":
         return bool(shutil.which(name))
     if kind == "cli":

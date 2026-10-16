@@ -11,6 +11,8 @@
     "command": "bash ~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
+    "workflow@n8io": true,
+    "tools@n8io": true,
     "superpowers@claude-plugins-official": true,
     "claude-mem@thedotmack": true
   },

@@ -87,14 +87,16 @@ if [[ -z "$LOC" ]]; then
   (( have_claude )) && ! (( DRY )) && say "warn" "n8io marketplace location unknown; using $LOC"
 fi
 
-# Where to read files from. A dry run before the marketplace exists reads this checkout instead.
+# Where to read files from. When the marketplace clone is missing, a dry run reads this checkout,
+# and so does --cloud (it copies, so the files outlive the checkout).
 READ_ROOT="$LOC"
-if (( DRY )) && [[ ! -d "$LOC/setup" ]]; then READ_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"; fi
+if [[ ! -d "$LOC/setup" ]] && (( DRY || CLOUD )); then READ_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"; fi
+TILDE="~" # a variable, so bash 5 does not expand ~ in the ${x/#$HOME/...} replacement
 
 # ---- 2/3. rules and statusline ---------------------------------------------
 # place <src> <dst>: link (or copy with --cloud). An existing different regular file is kept as dst.bak.
 place() {
-  local src="$1" dst="$2" label="${2/#$HOME/~}"
+  local src="$1" dst="$2" label="${2/#$HOME/$TILDE}"
   if (( CLOUD )); then
     if [[ -f "$dst" && ! -L "$dst" ]] && cmp -s "$src" "$dst"; then say "ok" "$label"; return 0; fi
   else
@@ -113,11 +115,13 @@ place() {
   changed
 }
 
-place "$LOC/setup/AGENTS.md" "$CFG/AGENTS.md"
+# Links point into the marketplace clone so marketplace updates update them; copies read READ_ROOT.
+SRC_ROOT="$LOC"; (( CLOUD )) && SRC_ROOT="$READ_ROOT"
+place "$SRC_ROOT/setup/AGENTS.md" "$CFG/AGENTS.md"
 for d in "$HOME/.cursor" "$HOME/.codex"; do
-  [[ -d "$d" ]] && place "$LOC/setup/AGENTS.md" "$d/AGENTS.md"
+  [[ -d "$d" ]] && place "$SRC_ROOT/setup/AGENTS.md" "$d/AGENTS.md"
 done
-place "$LOC/setup/statusline-command.sh" "$CFG/statusline-command.sh"
+place "$SRC_ROOT/setup/statusline-command.sh" "$CFG/statusline-command.sh"
 
 # ---- 3. settings merge ------------------------------------------------------
 # Existing keys win. Objects merge key by key, arrays union, hooks are never touched.
@@ -130,7 +134,7 @@ def dm($b):
 ($base | del(.hooks)) as $b | (. // {}) | dm($b)
 '
 merge_settings() {
-  local base="$READ_ROOT/setup/settings.json" dst="$CFG/settings.json" label="${CFG/#$HOME/~}/settings.json"
+  local base="$READ_ROOT/setup/settings.json" dst="$CFG/settings.json" label="${CFG/#$HOME/$TILDE}/settings.json"
   [[ -z "$JQ" ]] && return 0
   if [[ ! -f "$base" ]]; then
     if (( DRY )); then say "would" "merge baseline into $label"; changed; else say "warn" "no baseline settings at $base"; fi
@@ -147,8 +151,8 @@ merge_settings() {
   else
     cur="null"
   fi
-  new="$(printf '%s' "$cur" | "$JQ" -S --argjson base "$basejson" "$MERGE")" || { failed "merge $label"; return 1; }
-  if [[ -f "$dst" ]] && [[ "$(printf '%s' "$cur" | "$JQ" -S .)" == "$new" ]]; then say "ok" "$label"; return 0; fi
+  new="$(printf '%s' "$cur" | "$JQ" --argjson base "$basejson" "$MERGE")" || { failed "merge $label"; return 1; }
+  if [[ -f "$dst" ]] && [[ "$(printf '%s' "$cur" | "$JQ" -S .)" == "$(printf '%s' "$new" | "$JQ" -S .)" ]]; then say "ok" "$label"; return 0; fi
   if (( DRY )); then say "would" "merge baseline keys into $label"; changed; return 0; fi
   mkdir -p "$CFG"
   printf '%s\n' "$new" >"$dst.tmp.$$" && mv "$dst.tmp.$$" "$dst" && say "done" "merge baseline keys into $label" && changed

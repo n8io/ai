@@ -24,6 +24,13 @@
       }
     },
     {
+      "src": "stack-notes",
+      "targets": {
+        "claude": "~/.claude/skills/stack-notes",
+        "cursor": null
+      }
+    },
+    {
       "src": "ticket-worker",
       "targets": {
         "claude": "~/.claude/skills/ticket-worker",

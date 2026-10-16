@@ -120,25 +120,16 @@ Each prompt is a short kickoff for the `ticket-worker` skill, mode `subagent`. I
 - **The agreed plan + the user's clarification answers for THIS issue**, stated explicitly as
   settled decisions. This is what makes "proceed without asking" safe.
 - **Standing user rules that apply to this ticket type** — check memory/feedback for durable
-  rules and bake the applicable ones into the prompt; agents don't inherit them. Known: UI
-  interaction-fix PRs require recorded video evidence (shell-side Playwright), uploaded
-  DIRECTLY into the PR body through the github.com editor with the claude-in-chrome
-  `file_upload` tool — never an `assets/*` branch (user decision 2026-09-24; see ticket-loop's
-  media rule). Older PRs whose embeds point at an `assets/*` branch still depend on it, so never
-  delete those branches during cleanup.
-  Pruning old `assets/*` branches is a deliberate later sweep once the PR is historical, not
-  part of any ticket's cleanup. Known: ALL loader-returned data must respect the ADR-0006
-  identifier boundary — public NanoIDs only, never internal gids/ULIDs — not just URL params.
+  rules and bake the applicable ones into the prompt; agents don't inherit them. Media goes on
+  the PR per ticket-worker's media rule; never delete `assets/*` branches during cleanup.
 - **Spike/doc-only tickets** adapt the same flow: deliverable is an ADR (+ plan doc) on a
   branch → PR; follow-up implementation issues are DRAFTED in the final report for
   orchestrator confirmation, never self-filed (validated 2026-07-16, #579/ADR 0012).
 - **Residual overlap heads-up**: if any selected issues still touch a shared file despite
   conflict-aware selection, name the file(s) and sibling issue(s) in each affected agent's
   prompt so it keeps that edit minimal and expects pre-merge rebases onto sibling merges.
-  Drizzle migration collisions are the common case: if two siblings both generate migrations,
-  tell BOTH up front — when the pre-merge rebase pulls the sibling's migration from main,
-  delete your generated migration files and re-run `pnpm db:generate` on the rebased branch;
-  never hand-edit the journal.
+  Generated-file collisions (migrations, codegen) are the common case: tell BOTH siblings up
+  front, per `stack-notes`.
 - **The chosen autonomy depth** (push-only / ask-before-merge / full auto-merge).
 - **Plan file**: follow the repo's convention. Where plans ship on the branch, the worker
   commits the settled plan to `docs/superpowers/plans/<YYYY-MM-DD>-<issue-slug>.md`; elsewhere it
@@ -226,9 +217,6 @@ smoothly that's worth locking in?" is a valid lesson).
   original may not be truly dead and you cannot `SendMessage` it — verify it's actually gone
   before dispatching a finisher, and have the finisher re-fetch + `--force-with-lease`
   defensively rather than assume exclusive worktree access. Better: prevent it via ticket-worker's merge discipline.
-- Playwright demos rendered from a worktree dev server need a temporary Vite `server.fs.allow`
-  entry for the symlinked `node_modules` path or client hydration fails. Keep it uncommitted
-  (2026-07-15, #570).
 - A deleted `assets/*` orphan branch is recoverable while its objects survive GC: worktrees
   share the main repo's object DB, so `git fsck --lost-found`, `git ls-tree` the dangling
   commits for the asset filename, and push the found SHA back to the branch name. When

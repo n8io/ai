@@ -26,8 +26,9 @@ End-to-end workflow for taking one GitHub issue from selection to merged PR.
 - Ensure work starts from the latest `main` (`git fetch origin && git checkout main && git pull --ff-only`).
 - Create a fresh worktree for the task (see `superpowers:using-git-worktrees`).
 - **Toolchain gate — do this BEFORE reading code, writing tests, or editing anything.** A wrong
-  Node version or stale `node_modules` produces phantom failures that get debugged as if they
-  were real bugs, and they surface *late* — after a plan is written and half-implemented.
+  runtime version or a stale dependency install produces phantom failures that get debugged as
+  if they were real bugs, and they surface *late* — after a plan is written and half-implemented.
+  Read `stack-notes` for this repo's stacks first; it has each stack's pin files and commands.
   1. **Activate the repo's pinned runtime version, and PROVE it.** Find how the repo pins it (a
      version file, an engines field, a toolchain config) and activate exactly that version with
      whatever version manager the machine has — do not trust the shell default, which is often
@@ -67,7 +68,7 @@ Do not prompt to proceed unless there is a valid, mission-critical question. Jus
 
 - **Final review** — run a final review of completed changes.
 - **Simplification pass** — run `/code-review` and address any resulting issues.
-- **Stack-specific passes** — run any review skills that apply to this project's stack (per project AGENTS.md), e.g. `/vercel-react-best-practices` or React Router framework-mode validation on React repos.
+- **Stack-specific passes** — run any review skills that apply to this project's stack (the repo's AGENTS.md names them).
 
 ### 7. Validation
 

@@ -8,24 +8,24 @@ into `main` with remote CI running once per PR.
 - **CI-DISABLED RUN MODE (user may request it to save GitHub Action minutes; it's a stop-gap,
   not best practice).** When the user says "don't run CI / verify locally first", the pattern is:
   (a) every worker commit carries `[skip ci]` so GitHub burns zero Action minutes; (b) the worker
-  runs the FULL local CI-equivalent (`pnpm run ci` for the validate job + the integration suite)
+  runs the FULL local CI-equivalent (the repo's CI-equivalent from its `## Verify` section, plus the integration suite)
   ONCE before pushing — that local run IS the CI substitute, so bake it into the kickoff as a hard
   gate. Tell the worker the integration gate needs the repo's documented SERVICE STACK up (e.g.
   the local S3 store) and name the current passing baseline count — a worker without the stack
   reads its env failures as "pre-existing" and merges on a short count; (c) merge via `gh pr merge --admin` because the required status checks (`validate`/
   `integration`) never report and the ruleset would otherwise block forever — confirm `--admin`
   is permitted (repo admin + the `gh pr merge` allow rule covers it) BEFORE the run; (d) THE
-  ORCHESTRATOR runs a cheap per-ticket sanity check on `main` between tickets (e.g. `pnpm
-  typecheck`), because with CI off `main` can silently go RED and the next worker branches from it.
+  ORCHESTRATOR runs a cheap per-ticket sanity check on `main` between tickets (e.g. the repo's
+  typecheck), because with CI off `main` can silently go RED and the next worker branches from it.
   This is not paranoia — a ticket can merge with a red typecheck that only the next worker's
-  local `pnpm run ci` catches. State the mode in your first
+  local CI-equivalent catches. State the mode in your first
   status line and confirm the merge tension (required checks vs no CI) with the user before Step 2.
   - **Env-blocked integration gate: the orchestrator may clear it, but only after verifying BOTH
     halves itself.** When a worker reports the integration suite cannot run at all (harness/env
     failure, not test failures) and that it reproduces on clean `main`, do not make it park
     forever — but do not take the claim on faith either. Verify by REST (`gh api .../pulls/<n>/files`)
-    that the ENTIRE diff lies outside the integration-covered layer (for this repo: nothing under
-    `src/contexts/`), and that `pnpm run ci` was green. Both hold → send an orchestrator GO,
+    that the ENTIRE diff lies outside the integration-covered layer (the repo's memory names that
+    layer), and that the repo's CI-equivalent was green. Both hold → send an orchestrator GO,
     labelled as yours, and have the env-block + rationale noted in the PR body. Either fails →
     the gate stands; fix the env or escalate. Flag the env-block at loop end regardless: the next
     ticket that DOES touch the covered layer cannot merge honestly until the harness runs.
@@ -33,7 +33,7 @@ into `main` with remote CI running once per PR.
     decision, not an orchestrator auto-clear.** This repo HAS CI workflows (`ci.yml`:
     `validate` + a sharded `integration` job), but the standing `[ci skip]`-on-every-commit
     convention makes GitHub SKIP them — which is why `statusCheckRollup` reads empty, `--admin`
-    is the merge path, and it can look like "no CI". When a ticket touches `src/contexts/` + adds
+    is the merge path, and it can look like "no CI". When a ticket touches the integration-covered layer + adds
     a migration AND the local integration harness is broken on the machine, integration is then
     verified by NEITHER path (remote skipped, local broken), and because the diff is INSIDE the
     covered layer you may NOT auto-clear it. Surface it to the user via AskUserQuestion with the

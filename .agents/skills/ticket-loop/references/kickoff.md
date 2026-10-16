@@ -93,12 +93,9 @@ are fine; it is the FENCE and the odd-quote count that break the eval.
     one golden test, is noise to escalate. Verify the real numbers by REST, send
     a GO labelled as the orchestrator's, and say why it is not material. Escalate only when the
     overage is large or lands in production code the user has not seen.
-  - **A schema-migration ticket inflates REST `additions` by thousands of generated lines —
-    subtract the drizzle snapshot before judging the budget.** When verifying a PR's size by
-    REST for a ticket with a migration, `additions` counts the generated `drizzle/meta/*_snapshot.json`
-    (a full-schema JSON dump `pnpm db:generate` writes), which alone can be many thousands of
-    lines nobody hand-reviews. Judge on AUTHORED lines, not raw `additions`, or you will falsely
-    trip a size-hold on a small PR.
+  - **Generated files don't count toward the size budget.** REST `additions` includes migration
+    snapshots, lockfiles and codegen output. Judge on authored lines (see `stack-notes` for each
+    stack's generated paths), or you will falsely trip a size-hold on a small PR.
   - As orchestrator: at harvest, if the worker filed follow-ups, CHECK whether each was really
     separable, and say so in the report line. A run that closes fewer issues than it opens is
     a failed run, however good the individual PRs were.

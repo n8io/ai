@@ -6,11 +6,9 @@ Always prefer these faster alternatives in shell commands:
 - `eza` instead of `ls`
 - `bat` instead of `cat`
 - `sd` instead of `sed`/`awk`
-- `uv` instead of `pip`/`pip3`
 - `jaq` instead of `jq`
-- `fnm` instead of `nvm`
-- `pnpm` instead of `npm`
-- `bun` instead of `pnpm`
+
+Language and package-manager preferences live in the `stack-notes` skill.
 
 ## How I work
 
@@ -93,6 +91,8 @@ Skills and memory improve after every run, and they must not grow without limit.
 - Edit an existing rule before adding a new one. Merge rules that say the same thing.
 - SKILL.md holds the steps. Situational lessons go in `references/`, read only when the situation comes up. Incident history and dates go in CHANGELOG.md, never in the steps.
 - Evidence for a rule is one short clause, not a story.
+- Skills stay language- and tool-agnostic: name the role (the repo's test command, its `## Verify` section), never one stack's command. Stack lessons go in `stack-notes/references/<stack>.md`; repo lessons go in that repo's memory.
+- A repo's `AGENTS.md` lists its commands under `## Verify` by role: setup, format, lint, typecheck, test, full CI-equivalent, dev server, codegen.
 - A lesson about one repo goes in that repo's memory, not a shared skill. A rule that shows up in two or more repos' memories moves here, and the copies get deleted.
 - When CHANGELOG.md goes over budget, collapse its oldest entries into a one-paragraph summary.
 - Show me the diff for skill edits before writing them. Memory updates don't need approval.

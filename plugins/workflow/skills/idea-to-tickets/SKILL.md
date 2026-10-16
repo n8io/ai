@@ -34,14 +34,17 @@ Grep every factual claim you are about to write into a ticket: counts, field nam
 
 Save what you learned exploring as a **context pack** at
 `<main checkout>/.agents/scratchpad/context/<slug>.md`: relevant files and why, patterns and
-helpers to follow, test layout and commands, gotchas, and an empty `## Findings` section.
+helpers to follow, test layout and commands, gotchas, an `## External hosts` list (every host
+the work reaches at build or test time, so the environment can be checked first), and an empty
+`## Findings` section.
 Each ticket body points at it so workers start from it instead of re-exploring.
 
 ## 4. Decompose into a dependency graph
 
 Split the work so as much as possible can run in parallel.
 
-- **One ticket = one reviewable PR.** Give each a rough size (files, lines, counting tests).
+- **One ticket = one reviewable PR.** Give each a rough size in production lines. Estimate
+  tests separately; fixtures, snapshots and generated files count toward neither.
 - **Contract first.** When several tickets share a new interface (types, API shapes, events,
   schema or migrations), put that interface alone in a first ticket. Everything that consumes it
   is blocked by it and nothing else, so it can fan out the moment the contract merges.
@@ -84,7 +87,7 @@ Provides: what this ticket defines for others. Consumes: what it relies on, and 
 Observable checks a reviewer can run.
 
 **Size**
-~N files / ~M added lines, including tests.
+~N files / ~M production lines; tests ~T lines (fixtures, snapshots, generated files excluded).
 
 **Context pack**
 `.agents/scratchpad/context/<slug>.md`
@@ -100,7 +103,9 @@ language, not implementation language. File only on an explicit yes; filing is v
 hard to undo.
 
 Labels: a priority (`P0`–`P3`) on every ticket, plus the repo's kind label (`bug`, `feature`)
-if it has one. Check `gh label list`; create a label only if missing.
+if it has one. Check each label exists first (`gh label list`, or `get_label` over MCP); a
+missing one fails the filing. Create it if you can (`gh label create`); over MCP, which cannot
+create labels, file without it and ask the user to add it.
 
 ```bash
 gh issue create --title "…" --body-file <draft>.md --label P1 --label feature

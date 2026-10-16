@@ -15,7 +15,12 @@ Built on: `idea-to-tickets` (grill and decompose), `ticket-worker` (the worker c
 `next-issue` (the per-ticket steps and `../next-issue/references/ticket-selection.md`),
 `../ticket-loop/references/kickoff.md` and `../ticket-loop/references/orchestrator-gotchas.md`
 (paths relative to this skill's directory), and `progress-tracker`.
-Once `/ship` has run one real epic cleanly, `ticket-loop` and `parallel-tickets` retire.
+`ticket-loop` is legacy only as an entry point: the steps and references cited here are ship's
+own building blocks and stay maintained. `parallel-tickets` retires.
+
+**Projects mode** (a claude.ai Projects thread: `CLAUDE_CODE_PROJECTS_SESSION` set, or the
+thread tools loaded; GitHub through MCP only): read `references/projects-mode.md` first. It
+replaces the tmux, Chrome, Remote Control, messaging and tracker parts below.
 
 ## 1. Preflight
 
@@ -52,7 +57,8 @@ Classify the input and build the graph.
   one exploration pass over the selected tickets to build a shared context pack.
 
 The context pack lives at `<main checkout>/.agents/scratchpad/context/<run-slug>.md`, never
-committed. It has a section per ticket and a `## Findings` section workers append to.
+committed. It has a section per ticket, an `## External hosts` list (every host the epic
+reaches: APIs, CDNs, share links) and a `## Findings` section workers append to.
 
 ## 3. Before you leave
 
@@ -60,7 +66,11 @@ Run `ticket-loop`'s bedtime preflight (its Step 2) over the whole graph: every q
 user can answer gets asked now, in batched rounds, and each answer is recorded as a settled
 decision for its ticket.
 
-Then create **one progress tracker for the run** with `progress-tracker`:
+**Environment preflight.** Reach every host in the pack's `## External hosts` from this
+environment (`curl -sSI <url>`) before any ticket starts. A blocked host is a blocker: say so
+and get the environment fixed now, not mid-ticket.
+
+Then create **one progress tracker for the run** with `progress-tracker` (not in Projects mode):
 
 - One step per ticket, in topological order: `title` is `#<n> <short title>`, `note` names its
   blockers (`waits on #12, #13`) and owned files.
@@ -76,7 +86,10 @@ Loop until every ticket in the graph is merged or the user stops the run.
 
 **Ready** = open, not `in-progress`, zero open blockers, and owned files disjoint from every
 live ticket's owned files. Dispatch ready tickets until **4 workers** are live (the user can
-change the cap per run).
+change the cap per run). Parallel workers slow each other's verify runs (expect about 1.5x):
+give repo gates longer timeouts, and per ticket run only the fast gates plus the e2e specs for
+the area it touches. The full suite runs on `main` once per wave, not per ticket: when every
+ticket of a wave has merged, run it once (step 5 covers the last wave).
 
 For each dispatched ticket:
 
@@ -113,9 +126,11 @@ arrives. Everything else (stuck workers, pane drafts, expired logins, merge bloc
 
 ## 5. Integration check (epics and multi-ticket runs)
 
-When the last ticket merges, on fresh `main`:
+When the last ticket merges, first ask the user: "Start the integration check, or are more
+tickets coming?" (skip the ask if they already said the epic is complete). Then, on fresh `main`:
 
 1. Run the repo's full local CI-equivalent, including the suites CI runs that the docs skip.
+   Failures on the repo's AGENTS.md "Known failures on main" list are not regressions.
 2. Drive the feature end to end in the browser against the epic's acceptance list. Capture
    screenshots (desktop and phone width) and post them in a comment on the epic.
 3. **Pass** → close the epic with a comment linking every PR. **Fail** → file a fix ticket into

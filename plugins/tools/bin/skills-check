@@ -14,6 +14,10 @@ Requirements live in skills-requirements.json next to this script. Kinds:
   cli:<name>    on PATH
   mcp:, session:  only the running session can see these; listed so it checks them itself
 
+An entry's optional "cloud" names its equivalent in a claude.ai cloud session (CLAUDE_CODE_REMOTE
+or CLAUDE_CODE_PROJECTS_SESSION set). There a missing entry with a "cloud" equivalent is listed
+under "Cloud equivalents" instead of counting as missing.
+
 Exit 0 when nothing is missing, 1 otherwise. Never installs without --install.
 """
 import glob
@@ -27,6 +31,7 @@ HOME = os.path.expanduser("~")
 CONFIG = os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(HOME, ".claude")
 HERE = os.path.dirname(os.path.realpath(__file__))
 REQS = json.load(open(os.path.join(HERE, "skills-requirements.json")))
+CLOUD = os.environ.get("CLAUDE_CODE_REMOTE") == "true" or bool(os.environ.get("CLAUDE_CODE_PROJECTS_SESSION"))
 SKILLS, ITEMS = REQS["skills"], REQS["requirements"]
 
 
@@ -65,9 +70,12 @@ def report(names):
     unknown = [n for n in names if n not in SKILLS]
     if unknown:
         print(f"skills-check: not in the list: {', '.join(unknown)}", file=sys.stderr)
-    installable, human, session, offered = [], [], [], set()
+    installable, human, session, cloud, offered = [], [], [], [], set()
     for rid in closure([n for n in names if n in SKILLS]):
         item = ITEMS.get(rid, {})
+        if CLOUD and "cloud" in item and not present(rid):
+            cloud.append(f"  {rid}  — {item['cloud']}")
+            continue
         provider = item.get("provider")
         if provider and ITEMS.get(provider, {}).get("check"):
             # Shipped by one of our plugins: present when that plugin is installed.
@@ -92,6 +100,8 @@ def report(names):
         print("Missing, other:", *human, sep="\n")
     if session:
         print("Check in the session:", *session, sep="\n")
+    if cloud:
+        print("Cloud equivalents (use these instead):", *cloud, sep="\n")
     if not installable and not human:
         print("skills-check: nothing missing" + (" (session checks above still apply)" if session else ""))
         return 0

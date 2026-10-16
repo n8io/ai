@@ -1,7 +1,7 @@
 # gh-events — local GitHub event watcher
 
 Replaces polling (`gh pr checks` in a loop) with **pushed webhook events**, so
-waiting on a PR costs ~1 REST call instead of dozens of GraphQL calls. Built
+waiting on a PR costs 1 to 3 REST calls instead of dozens of GraphQL calls. Built
 because the GraphQL rate bucket (5,000/hr, shared across all tools) kept getting
 exhausted by monitoring loops.
 
@@ -25,7 +25,7 @@ All on PATH from the tools plugin's `bin/`.
 gh-wait --pr <N> --for ci|review|mergeable|any [--timeout <seconds>]
 ```
 Block until PR `<N>` reaches the state. Prints one JSON line and exits:
-- `{"satisfied":true,...,"source":"seed"}` — already done at startup (1 REST call, no daemon)
+- `{"satisfied":true,...,"source":"seed"}` — already done at startup (no daemon; 1 REST call to seed, 2 for `review`, 3 for `ci`)
 - `{"satisfied":true,...,"source":"event"}` — a pushed event satisfied it
 - `{"satisfied":false,"timedOut":true,...}` — timed out (exit code 3)
 

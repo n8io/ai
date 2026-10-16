@@ -10,7 +10,10 @@ gives you only what varies per ticket:
 
 - **Issue** number and title.
 - **Mode**: `push` (interactive session, report to the orchestrator by message), `poll`
-  (interactive session, no messaging), or `subagent` (background subagent, no human).
+  (interactive session, no messaging), `subagent` (background subagent, no human), or
+  `projects` (a claude.ai Projects thread, GitHub through MCP only). In `projects` mode read
+  `../ship/references/projects-mode.md` first; its worker rules replace the local mechanisms
+  below (messaging, `gh-wait`, Chrome uploads, tracker). Do not load the orchestrator gotchas.
 - **Settled decisions**: the user's answers and the agreed plan. These are final.
 - Optional: **context pack** path, **size budget**, **predecessor notes**, **repo gates**
   (extra verify commands, service stack, baseline test count), **branch base** (if not `main`),
@@ -51,6 +54,7 @@ For a genuinely new question:
   this session, the open dialog blocks your inbox so the relay cannot reach you, and the user
   gets asked twice.
 - **poll**: Ask in-session and wait. The user answers remotely.
+- **projects**: Ask in your thread with an `ask_decision` card and end the turn.
 - **subagent**: You cannot ask a human. Do not guess on anything irreversible. ABORT: remove the
   `in-progress` label and return `ABORTED-NEEDS-CLARIFICATION` with one-line question, one short
   concrete example, 2–4 short options, and your recommended default. No paragraphs.
@@ -86,6 +90,9 @@ and dropped. If a send fails, do not retry in a loop; fold it into your next rep
 PR-OPEN / ABORTED / ABORTED-NEEDS-CLARIFICATION), PR # and URL, one-paragraph summary,
 follow-ups, and confirmation the label is removed and the worktree cleaned up.
 
+**projects mode** — your thread checklist (`update_status`) and one thread `reply` at each of
+the five moments above are the report. No `SendMessage`, `ListAgents` or `send_message`.
+
 ## 5. Working rules
 
 - **Fold in, don't fork.** When you find something related to this ticket, finish it here. File
@@ -97,9 +104,15 @@ follow-ups, and confirmation the label is removed and the worktree cleaned up.
   Counts, inventories, "zero importers", file lists come from one earlier grep: re-derive them
   and expect them to differ, usually an undercount. Distrust them doubly when a predecessor just
   merged into the same files. Verify a dependency's real behaviour by reading its installed source, not its docs.
-- **Size budget** (if given) counts tests, fixtures and the plan doc, not just production code.
-  If your final diff exceeds it, or materially exceeds a size you were authorized for, report
-  the real numbers and WAIT for an explicit GO before merging.
+- **Size budget** (if given) counts production lines. Tests, fixtures, snapshots and generated
+  files are excluded, or checked against their own estimate if the kickoff gives one. If your
+  production diff exceeds it, or materially exceeds a size you were authorized for, report the
+  real numbers (production and the rest, separately) and WAIT for an explicit GO before merging.
+- **Verify scope.** Per ticket, run the fast gates (lint, typecheck, unit tests) plus the e2e
+  specs for the area you touched; the orchestrator runs the full suite once per wave. Read the
+  repo's AGENTS.md "Known failures on main" list first: those failures are not yours, so do not
+  rerun them, re-confirm them on a worktree of `main`, or rerun a full verify because of them.
+  With other workers running, expect runs about 1.5x slower and give long commands extra timeout.
 - **Sabotage-verify every new test.** Commit first. Break the production code and confirm the
   test (1) goes red, (2) for the right reason (read the failure message), and (3) the mutation
   actually landed (grep for it). Verify each site independently. Re-run at least one mutation
@@ -113,11 +126,13 @@ follow-ups, and confirmation the label is removed and the worktree cleaned up.
   relative to the worktree root; absolute paths can resolve to the outer checkout. Stage by
   explicit path, never `git add -A`. Never hand-write migrations.
 - **Screenshots** for browser verification go in a scratch dir inside your worktree (e.g.
-  `<worktree>/tmp/`), not `/tmp`, so reading them back needs no permission prompt.
+  `<worktree>/tmp/`), not `/tmp`. Do not `Read` them back into context: check them by script
+  (dimensions, not blank) or read one downscaled copy.
+- **Load skills with the Skill tool**, never by `cat` of a skill file in a checkout.
 - **Media goes directly on the PR or issue.** Open it on github.com with the claude-in-chrome
   tools, edit the description, upload with `file_upload`, save. If the browser tools are
   unavailable or the upload fails twice, publish without images and say so in your Finished
-  report. Never create a branch for images.
+  report. Never create a branch for images. `projects` mode: see the reference's evidence rule.
 - **Models.** Follow the global AGENTS.md "Choosing models" section: tag each plan task opus,
   sonnet or haiku when you dispatch it, and give implementers the context pack slice instead of
   telling them to explore.
@@ -129,12 +144,16 @@ follow-ups, and confirmation the label is removed and the worktree cleaned up.
 
 Do NOT open the PR and then park.
 
-- Wait on GitHub with `gh-wait` (see the `gh-events` skill), never a poll loop. In **subagent**
+- Wait on GitHub with `gh-wait` (see the `gh-events` skill), never a poll loop. In **push** and
+  **poll** mode run it as a background task; the harness wakes you when it exits. In **subagent**
   mode run it in the foreground with `--timeout 540` and repeat as needed: no Monitor tool, no
   background Bash, nothing that resumes you later, because a returned subagent cannot be resumed.
   Kill anything you started in the background before returning.
-- Run the review loop from `next-issue` Step 9: fix each finding, reply inline with the fix and
-  SHA, resolve the thread. Read the review body too, including suppressed comments.
+- **projects** mode: `subscribe_pr_activity` on your PR and end your turn instead of `gh-wait`.
+- Run the review loop from `next-issue` Step 9 only if the repo has a review bot (the context
+  pack says, or recent merged PRs show bot reviews): fix each finding, reply inline with the fix
+  and SHA, resolve the thread. Read the review body too, including suppressed comments.
+- Never request review from the PR's own author; GitHub refuses it. Skip that request.
 - If Copilot's review infra-errors and posts no threads, do not wait for it: with the local gate
   green and your sabotage checks done, 0 threads meets the ruleset.
 - Then the repo's final CI step (`next-issue` Step 10), the pre-merge rebase check, and
@@ -148,5 +167,6 @@ Do NOT open the PR and then park.
 
 When the orchestrator asks for wrap-up (push and poll modes), finish any open task, then save
 durable learnings from this ticket to memory: gotchas, user rulings, toolchain or rig fixes.
-Update existing files rather than duplicating. Reply with one line naming the files you wrote,
-or "none".
+One file per subject; update existing files rather than duplicating, and re-read a file right
+before editing it, since other workers write memory at the same time. Reply with one line naming
+the files you wrote, or "none". In `projects` mode do this before your final thread reply.

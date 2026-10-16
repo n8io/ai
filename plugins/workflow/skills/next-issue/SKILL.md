@@ -139,7 +139,7 @@ Do not prompt to proceed unless there is a valid, mission-critical question. Jus
 
 - Clean up local branches/worktrees.
 - Return the local environment to `main` with the latest changes.
-- **Release the claim:** remove the `in-progress` label from the issue (`gh issue edit <n> --remove-label in-progress`). If the merge auto-closed the issue, the label still needs removing so it does not linger on the closed ticket.
+- **Release the claim:** remove the `in-progress` label from the issue (`gh api -X DELETE repos/{owner}/{repo}/issues/<n>/labels/in-progress`, REST, so it works when GraphQL is exhausted). If the merge auto-closed the issue, the label still needs removing so it does not linger on the closed ticket.
 
 ## Abort handling
 

@@ -14,6 +14,9 @@ Sibling of `parallel-tickets` (batch, background subagents, no human in the work
 **Single ask surface:** in push mode every user-facing question is asked exactly once, in this
 chat; workers route questions here instead of opening in-session dialogs.
 
+`ship` reuses Steps 2, 4, 6 and 8 and the references below, so they stay maintained even though
+this skill is legacy as an entry point.
+
 References, read when the situation calls for them:
 
 - `references/kickoff.md`: the kickoff template and the judgment calls while writing one.
@@ -89,9 +92,9 @@ tmux new-session -d -s "issue-<n>" -c "$MAIN" \
 - Remote-control name: `<CODE><n> - <short goal>`, no `#`, no em dash (`SD` Snow Day, `TGL` golf league).
 - Verify after ~15s with `tmux capture-pane -t issue-<n> -p | tail -20`. `/rc failed` in the
   footer is not a dead worker; check its `ListAgents` row (see gotchas).
-- **Push mode:** workers message you directly at the address in their kickoff; no handshake.
-  For the first worker of a run only, prove delivery once: `SendMessage` it "handshake ok?" and
-  wait for the reply before trusting push mode. Always address `name [ref]`.
+- **Push mode:** workers message you directly at the address in their kickoff, so they need no
+  handshake to learn it. One delivery check per run, with the first worker only: `SendMessage`
+  it "handshake ok?" and wait for the reply before trusting push mode. Always address `name [ref]`.
 - Tell the user the session is live: issue #, remote-control name.
 
 ## 5. Wait

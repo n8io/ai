@@ -1,6 +1,6 @@
 {
   "name": "@n8io/ai",
-  "version": "0.5.1",
+  "version": "1.0.0",
   "private": true,
   "description": "Claude Code plugin marketplace: workflow skills, subagents and tooling",
   "type": "module",

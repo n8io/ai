@@ -1,5 +1,11 @@
 # @n8io/ai-config
 
+## 1.0.1
+
+### Patch Changes
+
+- 10be731: Drop the default model and the claude-mem plugin from the settings baseline, so bootstrap no longer adds them to settings that never had them.
+
 ## 1.0.0
 
 ### Major Changes

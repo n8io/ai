@@ -3,7 +3,12 @@
   "name": "tools",
   "version": "1.0.0",
   "description": "Claude Code tooling: helper CLIs on PATH, safety hooks, and the gh-events watcher",
-  "author": { "name": "Nate Clark", "email": "n8io@users.noreply.github.com" },
+  "author": {
+    "name": "Nate Clark",
+    "email": "n8io@users.noreply.github.com"
+  },
   "repository": "https://github.com/n8io/ai",
-  "dependencies": ["workflow"]
+  "dependencies": [
+    "workflow"
+  ]
 }

@@ -29,9 +29,34 @@ jobs:
       - name: Check for changeset
         run: bunx changeset status --since origin/main
 
+  validate-plugins:
+    name: Validate Plugins
+    runs-on: ubuntu-latest
+    if: github.head_ref != 'changeset-release/main'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Claude Code
+        run: npm i -g @anthropic-ai/claude-code
+      - name: Validate marketplace and plugins
+        run: |
+          for path in . plugins/workflow plugins/tools; do
+            echo "::group::claude plugin validate --strict $path"
+            claude plugin validate --strict "$path"
+            echo "::endgroup::"
+          done
+      - name: Check shell syntax
+        run: bash -n setup/*.sh plugins/tools/hooks/*.sh scripts/*.sh
+      - name: Bootstrap dry run
+        run: |
+          export HOME="$(mktemp -d)" CLAUDE_CONFIG_DIR="$(mktemp -d)"
+          N8IO_MARKETPLACE_SOURCE="$GITHUB_WORKSPACE" bash setup/bootstrap.sh --dry-run
+
   checks-passed:
     name: Checks Passed
-    needs: [test, changeset-check]
+    needs: [test, changeset-check, validate-plugins]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -39,12 +64,17 @@ jobs:
         run: |
           test="${{ needs.test.result }}"
           changeset="${{ needs.changeset-check.result }}"
+          validate="${{ needs.validate-plugins.result }}"
           if [[ "$test" != "success" && "$test" != "skipped" ]]; then
             echo "Test failed: $test"
             exit 1
           fi
           if [[ "$changeset" != "success" && "$changeset" != "skipped" ]]; then
             echo "Changeset check failed: $changeset"
+            exit 1
+          fi
+          if [[ "$validate" != "success" && "$validate" != "skipped" ]]; then
+            echo "Plugin validation failed: $validate"
             exit 1
           fi
           echo "All checks passed"

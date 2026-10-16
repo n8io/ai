@@ -23,31 +23,42 @@ jobs:
 
       - name: Create Release Pull Request
         uses: changesets/action@v1
+        with:
+          version: bun run version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
-    name: Publish to npm
+    name: Tag Plugin Releases
     runs-on: ubuntu-latest
     if: github.event.head_commit.author.name == 'github-actions[bot]' && contains(github.event.head_commit.message, 'Version Packages')
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: oven-sh/setup-bun@v2
-
-      - run: bun install --frozen-lockfile
-
-      - uses: actions/setup-node@v4
-        with:
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Publish
-        uses: changesets/action@v1
-        with:
-          publish: bun run release
+      - name: Tag plugins
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="$(jq -r .version package.json)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for plugin in workflow tools; do
+            tag="${plugin}--v${version}"
+            manifest="$(jq -r .version "plugins/${plugin}/.claude-plugin/plugin.json")"
+            if [[ "$manifest" != "$version" ]]; then
+              echo "::error::plugins/${plugin} manifest is ${manifest}, package.json is ${version}"
+              exit 1
+            fi
+            if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+              echo "${tag} already exists"
+              continue
+            fi
+            git tag -a "$tag" -m "${plugin} ${version}"
+            git push origin "$tag"
+          done
+          gh release create "v${version}" --title "v${version}" --generate-notes \
+            || echo "release v${version} already exists"

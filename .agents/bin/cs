@@ -24,11 +24,30 @@ slug="$(printf '%s' "$label" | tr -cs 'A-Za-z0-9_-' '-' | sed 's/^-*//;s/-*$//' 
 
 cmd=(claude --name "$slug" --remote-control "$label" --permission-mode bypassPermissions --chrome "$@")
 
+# A folder Claude Code has never opened shows a "trust this folder?" screen, and Remote Control
+# does not connect until someone answers it. For the user's own repos under ~/code, answer it
+# once from a short background watcher. Anywhere else the screen stays for a human.
+trust_dir="$PWD"
+answer_trust() {
+  local target="$1"
+  case "$trust_dir/" in "$HOME/code/"*) ;; *) return 0 ;; esac
+  ( for _ in $(seq 1 40); do
+      sleep 0.5
+      if tmux capture-pane -p -t "$target" 2>/dev/null | grep -q 'Yes, I trust this folder'; then
+        tmux send-keys -t "$target" Down Enter
+        exit 0
+      fi
+    done ) >/dev/null 2>&1 &
+}
+
 if [[ -n "${TMUX:-}" ]]; then
+  answer_trust "${TMUX_PANE:-}"
   exec "${cmd[@]}"
 fi
 
 if tmux has-session -t "=$slug" 2>/dev/null; then
   exec tmux attach -t "=$slug"
 fi
-exec tmux new-session -s "$slug" -c "$PWD" "${cmd[@]}"
+tmux new-session -d -s "$slug" -c "$PWD" "${cmd[@]}"
+answer_trust "=$slug"
+exec tmux attach -t "=$slug"

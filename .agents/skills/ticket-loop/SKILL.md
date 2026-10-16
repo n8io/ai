@@ -1,6 +1,6 @@
 ---
 name: ticket-loop
-description: Use when the user wants to work the GitHub issue backlog serially, one ticket at a time, via remote-controllable worker sessions.
+description: Legacy, being replaced by ship. Use only when the user names ticket-loop or explicitly asks for a strictly serial, one-ticket-at-a-time loop of remote-controllable worker sessions; otherwise use ship.
 ---
 
 # Ticket Loop (serial remote-control orchestrator)

@@ -1,6 +1,6 @@
 ---
 name: parallel-tickets
-description: Use when the user wants to work multiple GitHub issues at once via concurrent ticket-manager subagents.
+description: Legacy, being replaced by ship. Use only when the user names parallel-tickets or asks for in-session subagents instead of worker sessions; otherwise use ship for working several issues at once.
 ---
 
 # Parallel Tickets (orchestrator)

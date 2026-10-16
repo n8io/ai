@@ -1,0 +1,53 @@
+#!/bin/bash
+# glossary-check — flag glossary aliases in the lines a branch adds.
+# Reads every `_Avoid_:` list in CONTEXT.md (and the contexts CONTEXT-MAP.md links to) and
+# prints each added line that uses an alias, with the canonical term to use instead.
+# Warns only: some aliases are also ordinary programming words, so a human or agent judges.
+#
+# Usage: glossary-check [base]   (base defaults to origin/main, else main)
+
+set -uo pipefail
+
+root=$(git rev-parse --show-toplevel 2>/dev/null) || { echo "glossary-check: not in a git repo" >&2; exit 0; }
+cd "$root" || exit 0
+
+files=()
+[[ -f CONTEXT.md ]] && files+=(CONTEXT.md)
+if [[ -f CONTEXT-MAP.md ]]; then
+  while IFS= read -r f; do [[ -f "$f" ]] && files+=("$f"); done < <(rg -o '\(\./([^)]*CONTEXT\.md)\)' -r '$1' CONTEXT-MAP.md)
+fi
+(( ${#files[@]} )) || { echo "glossary-check: no CONTEXT.md"; exit 0; }
+
+base="${1:-}"
+if [[ -z "$base" ]]; then
+  git rev-parse -q --verify origin/main >/dev/null && base=origin/main || base=main
+fi
+
+# term<TAB>alias pairs from "**Term**:" headings followed by "_Avoid_: a, b, c"
+pairs=$(awk '
+  /^\*\*[^*]+\*\*:?[[:space:]]*$/ { t=$0; gsub(/^\*\*|\*\*:?[[:space:]]*$/, "", t); next }
+  /^_Avoid_:/ && t != "" {
+    s=$0; sub(/^_Avoid_:[[:space:]]*/, "", s); n=split(s, a, /,[[:space:]]*/)
+    for (i=1; i<=n; i++) { gsub(/^[[:space:]]+|[[:space:]]+$/, "", a[i]); if (a[i] != "") print t "\t" a[i] }
+  }' "${files[@]}")
+[[ -n "$pairs" ]] || { echo "glossary-check: no _Avoid_ aliases"; exit 0; }
+
+added=$(git diff "$base"...HEAD --unified=0 --no-color -- . ':!CONTEXT.md' ':!**/CONTEXT.md' ':!CONTEXT-MAP.md' \
+  | awk '/^\+\+\+ b\//{f=substr($0,7)} /^@@/{split($3,h,","); n=substr(h[1],2)-1} /^\+[^+]/{n++; print f ":" n ":" substr($0,2)}')
+[[ -n "$added" ]] || { echo "glossary-check: no added lines"; exit 0; }
+# Split camelCase, snake_case and kebab-case so "getUser" and "send_referral" match "user"/"referral".
+# Each row is "<normalized text>\t<original line>"; matching uses the first, printing the second.
+rows=$(printf '%s\n' "$added" | perl -ne 'chomp; my $n = $_; $n =~ s/([a-z0-9])([A-Z])/$1 $2/g; $n =~ s/[_-]/ /g; print "$n\t$_\n"')
+
+hits=0
+while IFS=$'\t' read -r term alias; do
+  m=$(printf '%s\n' "$rows" | awk -F'\t' -v a="$alias" 'BEGIN{a=tolower(a); gsub(/[_-]/," ",a)}
+    { l=" " tolower($1) " "; gsub(/[^a-z0-9]+/," ",l); if (index(l, " " a " ")) print $2 }' || true)
+  [[ -n "$m" ]] || continue
+  hits=1
+  echo "\"$alias\" → use \"$term\":"
+  printf '%s\n' "$m" | sed 's/^/  /' | head -20
+done <<<"$pairs"
+
+(( hits )) || echo "glossary-check: clean"
+exit 0

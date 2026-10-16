@@ -128,6 +128,7 @@ When the last ticket merges, on fresh `main`:
 
 Same contract as `ticket-loop` Step 8 and the global AGENTS.md "Improving skills and memory"
 rules: collect signals (dispatch collisions, file-ownership misses, context-pack gaps a worker
-had to re-explore, questions that reached workers instead of being asked in step 3), make the
+had to re-explore, questions that reached workers instead of being asked in step 3, glossary drift: an
+`_Avoid_` alias merged or a term invented without asking), make the
 smallest edit in the right file, run `skill-budget`, show the diff, log it in `CHANGELOG.md`.
 Promote durable findings from the context pack to the repo's memory before deleting the pack.

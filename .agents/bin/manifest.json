@@ -1,11 +1,18 @@
 {
   "topic": "bin",
-  "description": "Helper scripts: cs session launcher and skill-budget size check",
+  "description": "Helper scripts: cs session launcher, glossary-check and skill-budget size check",
   "files": [
     {
       "src": "cs",
       "targets": {
         "claude": "~/.claude/bin/cs",
+        "cursor": null
+      }
+    },
+    {
+      "src": "glossary-check",
+      "targets": {
+        "claude": "~/.claude/bin/glossary-check",
         "cursor": null
       }
     },

@@ -44,6 +44,16 @@ I am almost never at the machine running the sessions. I reach them through, in 
 - Always execute plans subagent-driven. Never ask "subagent or inline?".
 - Specs, plans and anything under `.claude/scratchpad/` are working files: write them to disk but do not commit them, unless the repo's own rules say plans ship on the branch. Stage by explicit path, never `git add -A` or `git add .`.
 
+### Shared language
+
+Each repo keeps one glossary: `CONTEXT.md` at the root, in `grill-with-docs`'s format. It is the source of truth for domain names in code, tests, UI copy, tickets, PRs and commits.
+
+- The repo's `CLAUDE.md` imports it with an `@CONTEXT.md` line so every session loads it. Add that line whenever you create the glossary or find it missing.
+- Use the canonical term, never one of its `_Avoid_` aliases. Run `glossary-check` (in `~/.claude/bin`) before opening a PR; it warns on aliases in added lines, and you judge each hit.
+- A new or changed term lands in `CONTEXT.md` in the same PR that introduces it. A term I haven't agreed to is a question for me, not a guess.
+- When existing code uses another word for a glossary term, don't rename it in passing. File one rename ticket per term.
+- No `CONTEXT.md` yet: create it the first time a term is settled.
+
 ### Choosing models
 
 The agent that plans or dispatches the work picks a model for each task, by what the task needs, and says which it picked when it fans out. Name tiers, never pinned versions; the alias resolves to the latest model in that tier.

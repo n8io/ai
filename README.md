@@ -1,117 +1,85 @@
-# 🤖 ai-config
+# n8io/ai
 
-> Provider-agnostic AI coding assistant config — shared rules, hooks, settings, and skills distributed via symlinks.
+A Claude Code plugin marketplace named `n8io`. It has two plugins and a small bootstrap script.
 
-## ✨ What it does
+- `workflow`: skills and subagents for going from an idea to a merged PR. Works in any Agent Plugins client.
+- `tools`: Claude Code only. Helper commands on PATH, safety hooks, and the gh-events watcher. Needs `workflow`.
 
-Symlinks files from a shared git repo (`~/.ai-config`) into AI tool config directories. One repo, all your tools stay in sync.
+## Install in Claude Code
 
-**Supported providers:** Claude Code · Cursor
+```
+/plugin marketplace add anthropics/claude-plugins-official
+/plugin marketplace add n8io/ai
+/plugin install workflow@n8io
+/plugin install tools@n8io
+```
 
-**Topics:**
-| Topic | What it installs |
-|---|---|
-| `rules` | Shared `AGENTS.md` coding conventions |
-| `hooks` | Prompt injection guard + session-start auto-sync |
-| `settings` | Claude Code settings baseline |
-| `skills` | Shared slash commands (`/commit`, etc.) |
-| `statusline` | Custom status line display |
+`workflow` depends on `superpowers@claude-plugins-official`, so add the official marketplace first.
 
-## 🚀 Quick start
+## Other agents
+
+Skills follow the Agent Skills format, so any agent that reads `.agents/skills/` can use them:
+
+```
+npx skills add n8io/ai
+```
+
+## Bootstrap
+
+Plugins do not cover your global rules, the statusline or settings. `setup/bootstrap.sh` does:
+
+```
+bash setup/bootstrap.sh            # on your machine
+bash setup/bootstrap.sh --dry-run  # print what it would do
+```
+
+It is safe to re-run and never prompts. It will:
+
+1. Add the `claude-plugins-official` and `n8io` marketplaces and install both plugins.
+2. Link `AGENTS.md` and `statusline-command.sh` into your Claude config dir (also `~/.cursor` and `~/.codex` if they exist).
+3. Merge `setup/settings.json` into `settings.json`. It adds missing keys only, never overwrites yours, never touches `hooks`.
+4. Link the `workflow` skills into `~/.agents/skills`.
+
+It respects `CLAUDE_CONFIG_DIR`. Set `N8IO_MARKETPLACE_SOURCE` to use a local path instead of `n8io/ai`.
+
+## Cloud environments
+
+In a claude.ai/code environment, paste this into the setup script field:
 
 ```bash
-npx @n8io/ai-config setup
+tmp="$(mktemp -d)"
+git clone --depth 1 https://github.com/n8io/ai "$tmp/ai"
+bash "$tmp/ai/setup/bootstrap.sh" --cloud
 ```
 
-That's it. The wizard clones the repo, detects your AI tools, and links everything.
+`setup/cloud-setup.sh` is the same thing with cleanup. `--cloud` copies files instead of linking and skips the `~/.agents/skills` links.
 
-## 📦 Commands
+## What is in each plugin
+
+`workflow` skills: `commit`, `idea-to-tickets`, `jira`, `next-issue`, `parallel-tickets`, `progress-tracker`, `ship`, `slack`, `slack-triage`, `stack-notes`, `ticket-loop`, `ticket-worker`, `verify`. Agents: `pr-title`, `code-style-alphasort`.
+
+`tools`:
+
+- Commands: `cs` (session launcher), `gh-wait`, `gh-events`, `glossary-check`, `skill-budget`, `skills-check`, `slack-download`.
+- Hooks: a worktree path guard (Write, Edit, NotebookEdit) and `tool-guard.sh` (Bash, Write, Edit).
+- Skill: `gh-events`, backed by the app in `plugins/tools/lib/gh-events`.
+
+## Development
 
 ```
-ai-config setup       # Guided onboarding (new team members start here)
-ai-config install     # Install specific topics or providers
-ai-config update      # Pull latest and re-apply symlinks
-ai-config status      # Show symlink health
-ai-config list        # List available topics
-ai-config uninstall   # Remove installed symlinks
+claude plugin validate --strict .                 # marketplace
+claude plugin validate --strict plugins/workflow
+claude plugin validate --strict plugins/tools
+bun test                                          # gh-events tests
+bash -n setup/*.sh plugins/tools/hooks/*.sh       # shell syntax
+bash plugins/tools/bin/skill-budget               # skill size budgets
 ```
 
-### `setup`
-Interactive wizard — detects installed AI tools, lets you pick topics, previews changes, then applies.
-```bash
-ai-config setup
-ai-config setup --provider claude   # skip provider detection
+Try it without touching your real config:
+
+```
+export HOME="$(mktemp -d)" CLAUDE_CONFIG_DIR="$(mktemp -d)"
+N8IO_MARKETPLACE_SOURCE="$PWD" bash setup/bootstrap.sh
 ```
 
-### `install`
-Non-interactive install, good for scripts.
-```bash
-ai-config install                   # all topics, detected providers
-ai-config install rules hooks       # specific topics only
-ai-config install --provider claude # specific provider
-ai-config install --yes             # skip conflict prompts
-ai-config install --dry-run         # preview without applying
-```
-
-### `status`
-Shows every installed symlink and its health. Exits 1 if anything is broken.
-```
-  Provider    Topic       File                              State
-  ─────────   ─────────   ───────────────────────────────   ──────────
-  claude      rules       ~/.claude/AGENTS.md               ✓ linked
-  claude      hooks       ~/.claude/hooks/session-start.sh  ✓ linked
-
-  Last synced: 3/14/2026, 8:42:00 AM
-
-  Not installed: skills, statusline
-```
-
-### `uninstall`
-```bash
-ai-config uninstall              # remove all
-ai-config uninstall rules hooks  # specific topics
-ai-config uninstall --yes        # skip prompts (backups kept, not restored)
-```
-
-## 🔧 How it works
-
-```mermaid
-flowchart TD
-    GH["github.com/n8io/ai-config"]
-    REPO["~/.ai-config/\n(git repo)"]
-    AGENTS[".agents/\ntopics"]
-
-    GH -->|"git clone / pull"| REPO
-    REPO --> AGENTS
-
-    AGENTS --> R["rules/\nAGENTS.md"]
-    AGENTS --> H["hooks/\nsession-start.sh"]
-    AGENTS --> S["settings/\nsettings.json"]
-    AGENTS --> SK["skills/\n*.md"]
-    AGENTS --> SL["statusline/\nconfig.json"]
-
-    R -->|symlink| CC["~/.claude/\nClaude Code"]
-    H -->|symlink| CC
-    S -->|symlink| CC
-    SK -->|symlink| CC
-    SL -->|symlink| CC
-
-    R -->|symlink| CU["~/.cursor/\nCursor"]
-
-    MANIFEST["~/.ai-config/\n.install-manifest.json"]
-    AGENTS -->|tracks| MANIFEST
-```
-
-An **install manifest** (`~/.ai-config/.install-manifest.json`) tracks every symlink so `update` and `uninstall` know what's managed.
-
-## 🛠️ Local development
-
-```bash
-git clone https://github.com/n8io/ai-config
-cd ai-config
-bun install
-bun run cli setup     # runs against this repo dir (local dev mode)
-bun test
-```
-
-**Local dev mode** is auto-detected when running from the cloned repo — no `~/.ai-config` needed.
+Every PR needs a changeset (`bunx changeset`). Merging to `main` opens a Version Packages PR. That PR runs `scripts/sync-versions.sh`, which writes the version into all four plugin manifests (`.claude-plugin/plugin.json` and `plugin.json` in each plugin). Merging it tags `workflow--v<version>` and `tools--v<version>` and creates a GitHub release. Nothing is published to npm.

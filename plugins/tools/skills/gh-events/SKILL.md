@@ -8,7 +8,7 @@ description: Use when waiting on GitHub PR/CI state — CI checks to finish, a r
 There is a local event watcher that holds a WebSocket to GitHub's webhook relay
 and blocks until a PR reaches a state, instead of polling. **Prefer it over any
 `gh pr checks` / `gh pr view` poll loop** — polling burns the shared 5,000/hr
-GraphQL bucket; this uses ~1 REST call.
+GraphQL bucket; this uses 1 to 3 REST calls to seed (see below), then none while waiting.
 
 Executables (on PATH from the tools plugin's `bin/`):
 
@@ -20,8 +20,12 @@ gh-wait --pr <N> --for ci|review|mergeable|any --timeout <seconds>
 
 - Run it as a **background Bash task**. It blocks until the condition is met, then
   exits — the harness re-invokes you on exit. No polling in between.
+- **Exception: subagents** run it in the **foreground** with `--timeout 540`, repeating as
+  needed. A returned subagent cannot be resumed, so nothing may wake it later.
+- **No `gh` login (claude.ai cloud / Projects threads):** gh-wait cannot run. Use the
+  `subscribe_pr_activity` tool on the PR and end the turn; PR events wake the session.
 - Prints one JSON line: `{"satisfied":true,...,"source":"seed"|"event","detail":{...}}`
-  (`seed` = already true at startup, 1 REST call, no daemon). Timeout → `{"satisfied":false,"timedOut":true}` and exit code 3 → fall back to a single `gh` check.
+  (`seed` = already true at startup, no daemon; the seed costs 1 REST call, 2 for `review`, 3 for `ci`). Timeout → `{"satisfied":false,"timedOut":true}` and exit code 3 → fall back to a single `gh` check.
 - Kinds: `ci` (all checks complete), `review` (a review submitted), `mergeable`
   (PR became mergeable), `any` (any event referencing the PR).
 

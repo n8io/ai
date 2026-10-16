@@ -70,7 +70,7 @@ bash "$tmp/ai/setup/bootstrap.sh" --cloud
 claude plugin validate --strict .                 # marketplace
 claude plugin validate --strict plugins/workflow
 claude plugin validate --strict plugins/tools
-bun test                                          # gh-events tests
+bun test                                          # gh-events and tool-guard tests
 bash -n setup/*.sh plugins/tools/hooks/*.sh       # shell syntax
 bash plugins/tools/bin/skill-budget               # skill size budgets
 ```

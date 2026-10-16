@@ -5,11 +5,11 @@ per ticket. Template (plain prose, no fenced code, balanced apostrophes):
 
     You are a ticket worker. Invoke the ticket-worker skill and follow it.
     Issue: #<n> "<title>" in <owner>/<repo>.
-    Mode: push | poll.
+    Mode: push | poll | projects   (projects: a claude.ai Projects thread, see ship/references/projects-mode.md).
     Orchestrator: <name> [<ref>]   (push mode; from your own ListAgents first line).
     Context pack: <path, or omit>.
     Settled decisions: <the user's answers and the agreed plan, as decided facts>.
-    Size budget: <~N changed files / ~M added lines, counting tests, fixtures and plan; or omit>.
+    Size budget: <~N changed files / ~M added production lines; tests ~T lines, estimated separately; or omit>.
     Predecessor notes: <what the just-merged predecessor decided, left as a seam, or tripped on; or omit>.
     Repo gates: <extra verify commands, service stack to start, current passing baseline count>.
     Flags: <decision-first | prototype-then-decide | branch base <name>; or omit>.
@@ -80,9 +80,10 @@ are fine; it is the FENCE and the odd-quote count that break the eval.
     the chosen scope implied, HOLD the merge and surface the diff size to the user before it
     lands — a codebase-wide convention change across every context is not something to let
     auto-merge on green CI without the deliberating user seeing the final size.
-  - **Say the budget counts tests, fixtures and the plan doc — workers estimate production code
-    only.** A worker that estimates production code alone will omit tests, fixtures and the plan
-    doc from its count and blow through an authorized size without meaning to.
+  - **The budget counts production lines.** Tests, fixtures, snapshots and generated files are
+    excluded, or estimated separately when the user wants a number for them. Counting them
+    against one figure made "over budget, wait for GO" fire on healthy tickets (a ~300-line
+    estimate came in at 1690, 474 of them without the generated snapshot).
   - **A size hold CANNOT be enforced reactively from the poll loop — arm it in the kickoff.**
     An orchestrator that notices the diff when CI goes green is already too late. So every
     kickoff's merge
@@ -93,9 +94,9 @@ are fine; it is the FENCE and the odd-quote count that break the eval.
     one golden test, is noise to escalate. Verify the real numbers by REST, send
     a GO labelled as the orchestrator's, and say why it is not material. Escalate only when the
     overage is large or lands in production code the user has not seen.
-  - **Generated files don't count toward the size budget.** REST `additions` includes migration
-    snapshots, lockfiles and codegen output. Judge on authored lines (see `stack-notes` for each
-    stack's generated paths), or you will falsely trip a size-hold on a small PR.
+  - **Judge on authored production lines.** REST `additions` includes tests, migration
+    snapshots, lockfiles and codegen output. Subtract them (see `stack-notes` for each stack's
+    generated paths), or you will falsely trip a size-hold on a small PR.
   - As orchestrator: at harvest, if the worker filed follow-ups, CHECK whether each was really
     separable, and say so in the report line. A run that closes fewer issues than it opens is
     a failed run, however good the individual PRs were.

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { evaluate, evaluateSince, seedVerdict, normalizeSnapshot } from '../lib/match.mjs';
 
-// A seed is what gh-wait learns from its single authoritative `gh pr view`
+// A seed is what gh-wait learns from its authoritative REST seed
 // call at startup: which head commit the PR currently points at.
 const seed = { headSha: 'abc123', headBranch: 'feature/x' };
 
@@ -55,7 +55,7 @@ test('review: NOT satisfied when the review belongs to a different PR', () => {
   assert.equal(verdict.satisfied, false);
 });
 
-// seedVerdict answers "is it already done?" from the one `gh pr view` snapshot,
+// seedVerdict answers "is it already done?" from the REST seed snapshot,
 // so a finished CI run short-circuits without ever starting the daemon.
 
 test('seed ci: satisfied when every rollup check has completed', () => {

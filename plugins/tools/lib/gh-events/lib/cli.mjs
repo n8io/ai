@@ -69,7 +69,7 @@ async function cmdWait(argv) {
   try {
     snapshot = ghPrSnapshot(pr, kind);
   } catch (err) {
-    out({ satisfied: false, error: `gh pr view failed: ${err.message}`, pr, kind });
+    out({ satisfied: false, error: `REST seed failed: ${err.message}`, pr, kind });
     process.exit(4);
   }
   const seed = { headSha: snapshot.headRefOid, headBranch: snapshot.headRefName };

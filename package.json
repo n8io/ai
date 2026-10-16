@@ -5,7 +5,7 @@
   "description": "Claude Code plugin marketplace: workflow skills, subagents and tooling",
   "type": "module",
   "scripts": {
-    "test": "bun test plugins/tools/lib/gh-events/test",
+    "test": "bun test plugins/tools/lib/gh-events/test plugins/tools/hooks/test",
     "version": "changeset version && bash scripts/sync-versions.sh"
   },
   "devDependencies": {

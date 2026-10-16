@@ -94,7 +94,7 @@ function rollupEntryDone(entry) {
   return entry.state != null && entry.state !== 'PENDING' && entry.state !== 'EXPECTED';
 }
 
-// Decide from the single `gh pr view` snapshot whether the wait is already
+// Decide from the REST seed snapshot whether the wait is already
 // satisfied, so a finished condition never spins up the daemon.
 export function seedVerdict(snapshot, kind) {
   switch (kind) {

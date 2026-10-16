@@ -4,12 +4,12 @@
 # Run at the end of every retrospective, before proposing an edit and after making it.
 #
 # Budgets: SKILL.md 200 lines, each reference file 350, CHANGELOG.md 150.
-# Tracked skills are listed below. Add a skill here when you create one.
+# Tracked skills are listed below: only skills we own. Third-party skills (e.g. pr-comments) update from upstream.
 
 set -uo pipefail
 
 # Skills are looked up by name under ~/.claude/skills, wherever they are installed from.
-SKILLS=(ship stack-notes ticket-worker idea-to-tickets next-issue ticket-loop parallel-tickets pr-comments slack-triage progress-tracker)
+SKILLS=(ship stack-notes ticket-worker idea-to-tickets next-issue ticket-loop parallel-tickets slack-triage progress-tracker)
 
 over=0
 check() {

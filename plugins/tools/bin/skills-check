@@ -7,9 +7,10 @@ Usage:
   skills-check --install <id>...     run the install command for requirements the user approved
 
 Requirements live in skills-requirements.json next to this script. Kinds:
-  skill:<name>  installed under ~/.claude/skills or ~/.agents/skills
+  skill:<name>  shipped by a plugin ("provider"), or found under ~/.claude/skills, ~/.agents/skills
+                or an installed plugin's skills/ dir
   plugin:, gh-ext:  checked with the entry's "check" command
-  bin:<name>    on PATH or in ~/.claude/bin
+  bin:<name>    shipped by a plugin ("provider"), or on PATH
   cli:<name>    on PATH
   mcp:, session:  only the running session can see these; listed so it checks them itself
 
@@ -50,7 +51,7 @@ def present(rid):
     if kind == "skill":
         return any(os.path.isfile(os.path.join(HOME, d, "skills", name, "SKILL.md")) for d in (".claude", ".agents"))
     if kind == "bin":
-        return bool(shutil.which(name)) or os.access(os.path.join(HOME, ".claude", "bin", name), os.X_OK)
+        return bool(shutil.which(name))
     if kind == "cli":
         return bool(shutil.which(name))
     return None  # mcp:, session: — the session checks these
@@ -60,25 +61,27 @@ def report(names):
     unknown = [n for n in names if n not in SKILLS]
     if unknown:
         print(f"skills-check: not in the list: {', '.join(unknown)}", file=sys.stderr)
-    installable, human, session = [], [], []
-    aiconfig = []
+    installable, human, session, offered = [], [], [], set()
     for rid in closure([n for n in names if n in SKILLS]):
-        kind, _, name = rid.partition(":")
-        item = ITEMS.get(rid) or ({"provider": "ai-config"} if kind == "skill" and name in SKILLS else {})
+        item = ITEMS.get(rid, {})
+        provider = item.get("provider")
+        if provider and ITEMS.get(provider, {}).get("check"):
+            # Shipped by one of our plugins: present when that plugin is installed.
+            if present(provider) or present(rid):
+                continue
+            if provider not in offered:
+                offered.add(provider)
+                installable.append(f"  {provider}  — `{ITEMS[provider]['install']}`")
+            continue
         ok = present(rid)
         if ok is None:
             session.append(f"  {rid}  (session check: {item.get('session', '?')}; if missing: {item.get('human', '')})")
         elif not ok:
-            if item.get("provider") == "ai-config":
-                aiconfig.append(rid)
-            elif "install" in item:
+            if "install" in item:
                 then = f"; then {item['then']}" if "then" in item else ""
                 installable.append(f"  {rid}  — `{item['install']}`{then}")
             else:
                 human.append(f"  {rid}  — {item.get('human', 'install by hand')}")
-    if aiconfig:
-        cmd = AICONFIG_UPDATE if shutil.which("ai-config") else AICONFIG_SETUP
-        installable.insert(0, f"  ai-config  — `{cmd}` (provides {', '.join(aiconfig)})")
     if installable:
         print("Missing, installable by the session (skills-check --install <id>):", *installable, sep="\n")
     if human:
@@ -91,17 +94,10 @@ def report(names):
     return 1
 
 
-AICONFIG_SETUP = "bunx @n8io/ai-config install --yes"
-AICONFIG_UPDATE = "ai-config update --yes"
-
-
 def install(ids):
     rc = 0
     for rid in ids:
-        if rid == "ai-config":
-            cmd = AICONFIG_UPDATE if shutil.which("ai-config") else AICONFIG_SETUP
-        else:
-            cmd = ITEMS.get(rid, {}).get("install")
+        cmd = ITEMS.get(rid, {}).get("install")
         if not cmd:
             print(f"skills-check: {rid} has no install command", file=sys.stderr)
             rc = 1

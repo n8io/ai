@@ -4,12 +4,27 @@
 # Run at the end of every retrospective, before proposing an edit and after making it.
 #
 # Budgets: SKILL.md 200 lines, each reference file 350, CHANGELOG.md 150.
-# Tracked skills are listed below: only skills we own. Third-party skills (e.g. pr-comments) update from upstream.
+# Scans plugins/*/skills/* when run inside a checkout of the n8io/ai repo; otherwise scans
+# the skills of the installed n8io plugins.
 
 set -uo pipefail
 
-# Skills are looked up by name under ~/.claude/skills, wherever they are installed from.
-SKILLS=(ship stack-notes ticket-worker idea-to-tickets next-issue ticket-loop parallel-tickets slack-triage progress-tracker)
+JQ=$(command -v jq || command -v jaq || true)
+
+roots=()
+top=$(git rev-parse --show-toplevel 2>/dev/null || true)
+if [[ -n "$top" && -d "$top/plugins" && -f "$top/.claude-plugin/marketplace.json" ]]; then
+  for d in "$top"/plugins/*/skills; do [[ -d "$d" ]] && roots+=("$d"); done
+elif [[ -n "$JQ" ]] && command -v claude >/dev/null 2>&1; then
+  while IFS= read -r p; do [[ -d "$p/skills" ]] && roots+=("$p/skills"); done < <(
+    claude plugin list --json 2>/dev/null | "$JQ" -r '.[] | select(.id | endswith("@n8io")) | .installPath'
+  )
+fi
+
+if (( ${#roots[@]} == 0 )); then
+  echo "skill-budget: no n8io skills found (run inside the n8io/ai repo or install the plugins)" >&2
+  exit 0
+fi
 
 over=0
 check() {
@@ -21,14 +36,15 @@ check() {
   printf '%-5s %4d / %-4d %s\n' "$mark" "$n" "$budget" "${file#$HOME/}"
 }
 
-for name in "${SKILLS[@]}"; do
-  dir="$HOME/.claude/skills/$name"
-  [[ -d "$dir" ]] || continue
-  check "$dir/SKILL.md" 200
-  check "$dir/CHANGELOG.md" 150
-  if [[ -d "$dir/references" ]]; then
-    for ref in "$dir"/references/*.md; do check "$ref" 350; done
-  fi
+for root in "${roots[@]}"; do
+  for dir in "$root"/*/; do
+    dir="${dir%/}"
+    check "$dir/SKILL.md" 200
+    check "$dir/CHANGELOG.md" 150
+    if [[ -d "$dir/references" ]]; then
+      for ref in "$dir"/references/*.md; do check "$ref" 350; done
+    fi
+  done
 done
 
 exit $over

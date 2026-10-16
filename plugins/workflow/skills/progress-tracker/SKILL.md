@@ -20,7 +20,7 @@ never republishes.
 ## Create
 
 1. Load the `artifact-capabilities` skill (required before passing `capabilities`).
-2. Copy `~/.claude/skills/progress-tracker/template.html` to the session scratchpad as
+2. Copy the `template.html` next to this SKILL.md (`${CLAUDE_SKILL_DIR}/template.html`) to the session scratchpad as
    `progress-tracker.html`. Replace `__STAGE__` (small eyebrow, e.g. "Acme App · Checkout
    Flow") and `__PHASE__` (heading, e.g. "Build"), and set `<title>` to a 2–4 word name
    for this build.

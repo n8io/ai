@@ -96,7 +96,7 @@ follow-ups, and confirmation the label is removed and the worktree cleaned up.
 - **Distrust the ticket's claims.** Severity ("cosmetic", "low risk") is a hypothesis to verify.
   Counts, inventories, "zero importers", file lists come from one earlier grep: re-derive them
   and expect them to differ, usually an undercount. Distrust them doubly when a predecessor just
-  merged into the same files. Verify a dependency's real behaviour by reading its `dist/`, not its docs.
+  merged into the same files. Verify a dependency's real behaviour by reading its installed source, not its docs.
 - **Size budget** (if given) counts tests, fixtures and the plan doc, not just production code.
   If your final diff exceeds it, or materially exceeds a size you were authorized for, report
   the real numbers and WAIT for an explicit GO before merging.

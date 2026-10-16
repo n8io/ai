@@ -9,7 +9,7 @@
 set -uo pipefail
 
 # Skills are looked up by name under ~/.claude/skills, wherever they are installed from.
-SKILLS=(ship ticket-worker idea-to-tickets next-issue ticket-loop parallel-tickets pr-comments slack-triage progress-tracker)
+SKILLS=(ship stack-notes ticket-worker idea-to-tickets next-issue ticket-loop parallel-tickets pr-comments slack-triage progress-tracker)
 
 over=0
 check() {

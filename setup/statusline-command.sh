@@ -58,7 +58,7 @@ if [ -n "$git_dir" ]; then
   fi
 fi
 
-CACHE_DIR="${HOME}/.ai-config/cache"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/n8io-statusline"
 mkdir -p "$CACHE_DIR"
 
 # PR link — cached per branch for 5 minutes

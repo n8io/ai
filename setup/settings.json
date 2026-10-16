@@ -20,6 +20,20 @@
         "source": "github",
         "repo": "thedotmack/claude-mem"
       }
+    },
+    "n8io": {
+      "source": {
+        "source": "github",
+        "repo": "n8io/ai"
+      },
+      "autoUpdate": true
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      },
+      "autoUpdate": true
     }
   },
   "effortLevel": "medium",

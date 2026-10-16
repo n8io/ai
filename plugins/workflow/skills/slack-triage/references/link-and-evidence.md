@@ -31,7 +31,7 @@ Reading inline doesn't give you a file, and the ticket embeds the image at step 
 1. Get `.message.files[].url_private_download // .url_private` from
    `slackcli conversations get <channel> <ts> --json` (strip the progress lines with
    `sed -n '/^{/,$p'`).
-2. Run `~/.claude/bin/slack-download <url> /tmp/<slug>.png` as its own Bash call, not inside
+2. Run `slack-download <url> /tmp/<slug>.png` as its own Bash call, not inside
    a compound command, so it matches its allow rule.
 
 If the helper is missing or the download is denied, say so and ask your partner to hand

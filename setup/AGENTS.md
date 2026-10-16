@@ -55,7 +55,7 @@ I am almost never at the machine running the sessions. I reach them through, in 
 Each repo keeps one glossary: `CONTEXT.md` at the root, in `grill-with-docs`'s format. It is the source of truth for domain names in code, tests, UI copy, tickets, PRs and commits.
 
 - The repo's `AGENTS.md` imports it with an `@CONTEXT.md` line so every session loads it. Add that line whenever you create the glossary or find it missing.
-- Use the canonical term, never one of its `_Avoid_` aliases. Run `glossary-check` (in `~/.claude/bin`) before opening a PR; it warns on aliases in added lines, and you judge each hit.
+- Use the canonical term, never one of its `_Avoid_` aliases. Run `glossary-check` (from the tools plugin) before opening a PR; it warns on aliases in added lines, and you judge each hit.
 - A new or changed term lands in `CONTEXT.md` in the same PR that introduces it. A term I haven't agreed to is a question for me, not a guess.
 - When existing code uses another word for a glossary term, don't rename it in passing. File one rename ticket per term.
 - No `CONTEXT.md` yet: create it the first time a term is settled.
@@ -80,7 +80,7 @@ The agent that plans or dispatches the work picks a model for each task, by what
 
 ### Sessions and progress
 
-- Start sessions with `cs` (in `~/.claude/bin`): tmux, bypassed permissions, Claude in Chrome, and a Remote Control named after the repo and branch. Workers spawned by an orchestrator use the same flags so cross-session messages are never held.
+- Start sessions with `cs` (from the tools plugin): tmux, bypassed permissions, Claude in Chrome, and a Remote Control named after the repo and branch. Workers spawned by an orchestrator use the same flags so cross-session messages are never held.
 - For work you expect to run longer than about 30 minutes, publish a live tracker with the `progress-tracker` skill and give me the link once. Update it at each step; I peek when I want to.
 
 ### Improving skills and memory
@@ -92,7 +92,7 @@ Skills and memory improve after every run, and they must not grow without limit.
 - SKILL.md holds the steps. Situational lessons go in `references/`, read only when the situation comes up. Incident history and dates go in CHANGELOG.md, never in the steps.
 - Evidence for a rule is one short clause, not a story.
 - Skills stay language- and tool-agnostic: name the role (the repo's test command, its `## Verify` section), never one stack's command. Stack lessons go in `stack-notes/references/<stack>.md`; repo lessons go in that repo's memory.
-- When a skill starts using another skill, plugin, script, CLI or MCP server, add it to `skills-requirements.json` (next to `skills-check` in `~/.claude/bin`) in the same change.
+- When a skill starts using another skill, plugin, script, CLI or MCP server, add it to `skills-requirements.json` (next to `skills-check` in the tools plugin's `bin/`) in the same change.
 - A repo's `AGENTS.md` lists its commands under `## Verify` by role: setup, format, lint, typecheck, test, full CI-equivalent, dev server, codegen.
 - A lesson about one repo goes in that repo's memory, not a shared skill. A rule that shows up in two or more repos' memories moves here, and the copies get deleted.
 - When CHANGELOG.md goes over budget, collapse its oldest entries into a one-paragraph summary.

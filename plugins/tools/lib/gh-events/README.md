@@ -19,8 +19,7 @@ grace) and deletes its GitHub-side webhook. Nothing lingers.
 
 ## Commands
 
-All under `~/.claude/bin` (not on PATH by default — call by full path or add
-`export PATH="$HOME/.claude/bin:$PATH"`).
+All on PATH from the tools plugin's `bin/`.
 
 ```
 gh-wait --pr <N> --for ci|review|mergeable|any [--timeout <seconds>]

@@ -10,7 +10,7 @@ and blocks until a PR reaches a state, instead of polling. **Prefer it over any
 `gh pr checks` / `gh pr view` poll loop** — polling burns the shared 5,000/hr
 GraphQL bucket; this uses ~1 REST call.
 
-Executables (not on PATH — call by full path or `export PATH="$HOME/.claude/bin:$PATH"`):
+Executables (on PATH from the tools plugin's `bin/`):
 
 ## Wait for a state (run as a BACKGROUND task, then let the harness wake you)
 
@@ -41,4 +41,4 @@ gh-events stop | reap | sweep   # stop daemon / drop dead leases / delete leaked
   `gh-events sweep` reaps it.
 - Repo is the current directory's GitHub `origin` (override with `GH_EVENTS_REPO=owner/name`), port 8765 (`GH_EVENTS_PORT`). State lives in `~/.local/state/gh-events`.
 
-Full docs: the README next to the app (`ai-config`'s `.agents/bin/lib/gh-events/`).
+Full docs: the README next to the app (the tools plugin's `lib/gh-events/`).

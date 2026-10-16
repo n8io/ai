@@ -1,0 +1,34 @@
+#!/bin/bash
+# cs — start a Claude Code session the standard way:
+# inside tmux, permissions bypassed, Claude in Chrome on, Remote Control named after the repo and branch.
+#
+#   cs                 # name from repo + branch, e.g. "the-golf-league - main"
+#   cs "Firefighter"   # custom Remote Control name
+#   cs -- --resume     # everything after -- goes to claude unchanged
+#
+# Inside tmux it runs in the current pane. Outside, it creates (or reattaches to) a tmux session.
+
+set -euo pipefail
+
+label=""
+if [[ $# -gt 0 && "$1" != "--" ]]; then label="$1"; shift; fi
+[[ "${1:-}" == "--" ]] && shift
+
+root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+repo="$(basename "$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null | sed 's#/\.git$##' || echo "$root")")"
+branch="$(git branch --show-current 2>/dev/null || true)"
+[[ -z "$label" ]] && label="$repo${branch:+ - $branch}"
+
+# tmux session names cannot contain '.' or ':'; keep them short and readable.
+slug="$(printf '%s' "$label" | tr -cs 'A-Za-z0-9_-' '-' | sed 's/^-*//;s/-*$//' | cut -c1-40)"
+
+cmd=(claude --name "$slug" --remote-control "$label" --permission-mode bypassPermissions --chrome "$@")
+
+if [[ -n "${TMUX:-}" ]]; then
+  exec "${cmd[@]}"
+fi
+
+if tmux has-session -t "=$slug" 2>/dev/null; then
+  exec tmux attach -t "=$slug"
+fi
+exec tmux new-session -s "$slug" -c "$PWD" "${cmd[@]}"

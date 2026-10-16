@@ -1,0 +1,34 @@
+#!/bin/bash
+# skill-budget — keep the workflow skills from growing without limit.
+# Prints each tracked file's line count against its budget; exits 1 if any file is over.
+# Run at the end of every retrospective, before proposing an edit and after making it.
+#
+# Budgets: SKILL.md 200 lines, each reference file 350, CHANGELOG.md 150.
+# Tracked skills are listed below. Add a skill here when you create one.
+
+set -uo pipefail
+
+# Skills are looked up by name under ~/.claude/skills, wherever they are installed from.
+SKILLS=(ship ticket-worker idea-to-tickets next-issue ticket-loop parallel-tickets pr-comments slack-triage progress-tracker)
+
+over=0
+check() {
+  local file="$1" budget="$2" n
+  [[ -f "$file" ]] || return 0
+  n=$(wc -l <"$file" | tr -d ' ')
+  local mark="ok"
+  if (( n > budget )); then mark="OVER"; over=1; fi
+  printf '%-5s %4d / %-4d %s\n' "$mark" "$n" "$budget" "${file#$HOME/}"
+}
+
+for name in "${SKILLS[@]}"; do
+  dir="$HOME/.claude/skills/$name"
+  [[ -d "$dir" ]] || continue
+  check "$dir/SKILL.md" 200
+  check "$dir/CHANGELOG.md" 150
+  if [[ -d "$dir/references" ]]; then
+    for ref in "$dir"/references/*.md; do check "$ref" 350; done
+  fi
+done
+
+exit $over

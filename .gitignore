@@ -4,3 +4,6 @@ node_modules/
 .install-manifest.json
 .sync-cache
 cache/
+
+# Skill changelogs hold private project history; they stay local
+.agents/skills/*/CHANGELOG.md

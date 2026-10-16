@@ -30,13 +30,13 @@ if [ "$tool_name" = "Bash" ]; then
         exit 2
     fi
 
-    # 3. git push/reset using bare --force or -f shorthand
+    # 3. git push/fetch/branch/rebase/reset/checkout using bare --force or -f shorthand
     #    --force-with-lease and --force-if-includes are allowed.
     #    Checked per command segment (split on ; & | and newlines), so `pkill -f`, `rm -rf` or
     #    `git worktree remove --force` next to a git command is not read as a forced git op.
-    #    Catches: git push --force, git push -f, git -C dir push --force, git reset --force
+    #    Catches: git push --force, git -C dir push -f, git fetch -f, git branch -f, git checkout --force, etc.
     while IFS= read -r _seg; do
-        printf '%s' "$_seg" | grep -qE '(^|[[:space:]])git[[:space:]]+((-C|-c)[[:space:]]+[^[:space:]]+[[:space:]]+|-[^[:space:]]+[[:space:]]+)*(push|reset)([[:space:]]|$)' || continue
+        printf '%s' "$_seg" | grep -qE '(^|[[:space:]])git[[:space:]]+((-C|-c)[[:space:]]+[^[:space:]]+[[:space:]]+|-[^[:space:]]+[[:space:]]+)*(push|fetch|branch|rebase|reset|checkout)([[:space:]]|$)' || continue
         # Strip safe force variants first to avoid false positives
         _stripped=$(printf '%s' "$_seg" \
             | sed 's/--force-with-lease[^[:space:]]*/SAFE/g; s/--force-if-includes/SAFE/g')

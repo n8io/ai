@@ -19,6 +19,10 @@ describe('tool-guard git --force', () => {
     'git fetch && git push --force=true origin x',
     'git reset --force',
     'cd repo; git push -f',
+    'git fetch -f origin main',
+    'git branch -f main HEAD~1',
+    'git checkout --force main',
+    'pkill -f vite; git checkout -f main',
   ])('blocks %s', (cmd) => {
     expect(bash(cmd)).toBe(2);
   });

@@ -10,6 +10,11 @@ mechanism named in `ship` or `ticket-worker`; everything else in those skills st
 
 - **Preflight.** Skip `cs`, `tmux`, the messaging socket and `ListAgents`. Confirm
   `mcp__github__get_me` works, and run the environment preflight (ship step 3) from this thread.
+- **Context pack.** Threads can't read your scratchpad: put the pack in the epic's first comment
+  (or a file under `/mnt/project-files/<run-slug>/`) and give its location in each kickoff. Add a
+  `## Setup data` section with every non-secret value a worker or the integration check needs
+  (share links, settings paths, seed ids), so no thread mines another thread's logs for it.
+  Secrets never go in the pack; ask the user for them.
 - **Review bot.** Check once whether the repo has a review bot: read the reviews on its two most
   recent merged PRs (`pull_request_read`). Record `Review bot: copilot | none` in the context
   pack. Workers run the Copilot loop only when it says `copilot`.
@@ -41,9 +46,17 @@ mechanism named in `ship` or `ticket-worker`; everything else in those skills st
   then end your turn. CI results and review comments wake you. Do not sleep or poll.
 - **Copilot loop.** Run it only when the context pack says `Review bot: copilot`. Otherwise
   merge once the local gate and remote CI are green.
-- **Reviewer.** Request the requester as reviewer only when they are not the PR author. PRs
-  opened through the MCP tools are usually authored by the requester, and GitHub refuses that
-  request ("cannot request review from author"): skip it.
+- **Repo helpers.** Run the scripts AGENTS.md `## Verify` lists (preflight, affected e2e specs,
+  baseline diff, screenshot check, diffstat split) instead of judging those things yourself.
+- **Finish the PR** in this fixed order, no improvising:
+  1. `create_pull_request`, then `issue_write` (`method: update`) with `assignees: [<requester>]`.
+  2. Reviewer: request the requester only when they are not the PR author. PRs opened through
+     the MCP tools are usually authored by the requester, and GitHub refuses that request
+     ("cannot request review from author"): skip it.
+  3. `subscribe_pr_activity` with `owner`, `repo`, `pullNumber` (camelCase), then end the turn.
+  4. Green and `mergeable_state: clean`: `merge_pull_request` with `expectedHeadSha`. Use
+     `squash`; on 405 "Squash merges are not allowed" use `rebase` for a linear history, else
+     `merge`. Record the method in the context pack so later threads skip the failed call.
 - **Evidence.** Save screenshots under `/mnt/project-files/<run-slug>/` and attach them to your
   thread `reply` (`attached_outputs`, kind `file`). The PR body says "Screenshots are in the
   project thread for #<n>". Never create a branch for images.

@@ -123,6 +123,9 @@ gh api -X POST repos/{owner}/{repo}/issues/<E>/sub_issues -F sub_issue_id="$(id 
 
 Verify with `gh api repos/{owner}/{repo}/issues/<B>/dependencies/blocked_by --jq '.[].number'`.
 
+Drafts name each other by placeholder (`{T1}`, `{T2}`), never `#1`: a bare `#n` links to whatever
+issue or PR already has that number. Rewrite them to the filed numbers before linking the graph.
+
 ## 7. Report
 
 One short message: the Mermaid graph with real issue numbers, which tickets are ready now, and

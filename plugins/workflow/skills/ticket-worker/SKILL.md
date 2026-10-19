@@ -159,7 +159,8 @@ Do NOT open the PR and then park.
 - Then the repo's final CI step (`next-issue` Step 10), the pre-merge rebase check, and
   squash-merge immediately. Do not schedule another wait.
 - After the merge lands, finish your own cleanup BEFORE going idle: remove the `in-progress`
-  label, remove your worktree, return to main. Then send your Finished report.
+  label, remove your worktree, then `git -C <primary checkout> merge --ff-only origin/main`
+  (never `update-ref`: it leaves that checkout's files as staged reverts). Then report.
 - If your login expires, STOP and report that you need re-auth. Do not spin.
 - On abort, always release the `in-progress` label.
 

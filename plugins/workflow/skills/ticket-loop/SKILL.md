@@ -78,6 +78,7 @@ prompt as a bare argument:
 ```bash
 MAIN="/absolute/path/to/<repo>"          # the primary checkout, on main; never $(git rev-parse ...)
 KICK="$(cat <path>/kickoff-<n>.txt)"
+[ -n "$KICK" ] || { echo "empty kickoff, not spawning"; exit 1; }
 tmux new-session -d -s "issue-<n>" -c "$MAIN" \
   claude --name "issue-<n>" \
          --remote-control '<CODE><n> - <short goal>' \

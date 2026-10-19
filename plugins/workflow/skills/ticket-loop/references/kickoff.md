@@ -31,6 +31,9 @@ are fine; it is the FENCE and the odd-quote count that break the eval.
 
 ## Orchestrator-side judgment while writing the kickoff
 
+- **Carry repo-wide checks forward.** When an earlier ticket's acceptance is an
+  audit over shared screens (touch targets, nested links, payload size), put that
+  audit in the kickoff of every later ticket that edits those screens.
 - **Decision-first tickets need a HARD gate.** When the ticket says a decision is required
   before implementation (or the central question is a product/privacy/UX call rather than a
   technical one), "ask before implementing" is NOT enough. Say verbatim: "This ticket is decision-first. After investigating, your FIRST action

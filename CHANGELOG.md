@@ -1,5 +1,14 @@
 # @n8io/ai-config
 
+## 1.1.1
+
+### Patch Changes
+
+- 4bc9a07: idea-to-tickets: drafts name each other by placeholder, not `#n`, and get rewritten to the filed numbers before the graph is linked. A bare `#n` in a draft links to whatever issue or PR already has that number.
+- cc9bc6a: ship: collect typed approvals for steps auto mode blocks (always-on services, global installs, secret files, outside services) before dispatch, and in Projects mode check `gh auth` on threads that run on the user's own machine, where the GitHub MCP tools are absent.
+- 2a2461b: ticket-loop: the spawn step refuses an empty kickoff instead of starting a worker with no prompt, and kickoffs carry an earlier ticket's repo-wide audit (touch targets, nested links, payload size) into every later ticket that edits the same screens.
+- 029ce80: ticket-worker: after merging, fast-forward the primary checkout with `git -C <primary> merge --ff-only origin/main`, never `update-ref`, which moves the ref but leaves that checkout's files behind as staged reverts.
+
 ## 1.1.0
 
 ### Minor Changes

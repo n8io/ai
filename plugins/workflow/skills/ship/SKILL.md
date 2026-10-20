@@ -66,6 +66,12 @@ Run `ticket-loop`'s bedtime preflight (its Step 2) over the whole graph: every q
 user can answer gets asked now, in batched rounds, and each answer is recorded as a settled
 decision for its ticket.
 
+**Approvals.** Auto mode blocks some steps until the user types an OK: installing launchd or
+other always-on services, global installs, writing `.env` or other secret files, sending data to
+outside services, clicking through cloud consoles. Look for these in every ticket now and get
+the user's typed approval for each, in the same batched rounds. Quote the approval in the
+kickoff as a settled decision, so workers don't stall on a permission prompt mid-ticket.
+
 **Environment preflight.** Reach every host in the pack's `## External hosts` from this
 environment (`curl -sSI <url>`) before any ticket starts. A blocked host is a blocker: say so
 and get the environment fixed now, not mid-ticket.

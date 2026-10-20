@@ -10,6 +10,10 @@ mechanism named in `ship` or `ticket-worker`; everything else in those skills st
 
 - **Preflight.** Skip `cs`, `tmux`, the messaging socket and `ListAgents`. Confirm
   `mcp__github__get_me` works, and run the environment preflight (ship step 3) from this thread.
+- **Threads on the user's own machine.** A Projects thread can run on the user's computer over
+  Remote Control instead of in the cloud. There the GitHub MCP tools are usually absent: use `gh`
+  instead, and check `gh auth status` at preflight. If neither works, that is a blocker: ask the
+  user to run `gh auth login` on that machine now, before dispatch, not when a worker opens its PR.
 - **Context pack.** Threads can't read your scratchpad: put the pack in the epic's first comment
   (or a file under `/mnt/project-files/<run-slug>/`) and give its location in each kickoff. Add a
   `## Setup data` section with every non-secret value a worker or the integration check needs

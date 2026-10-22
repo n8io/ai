@@ -1,5 +1,11 @@
 # @n8io/ai-config
 
+## 1.1.3
+
+### Patch Changes
+
+- ed8c8a6: ticket-worker: close every tab in the worker's claude-in-chrome group as part of cleanup (after merge and on abort), so finished workers leave no tab groups behind.
+
 ## 1.1.2
 
 ### Patch Changes

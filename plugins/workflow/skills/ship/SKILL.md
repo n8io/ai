@@ -105,7 +105,9 @@ For each dispatched ticket:
    of every other live ticket ("do not edit these; report kind 2 if you must"); the tracker URL
    and this ticket's step id; settled decisions; predecessor notes from blockers that merged.
 3. Spawn it per `ticket-loop` Step 4 with `--permission-mode bypassPermissions --chrome
-   --model opus --effort medium`, `--name issue-<n>`, Remote Control `<CODE><n> - <goal>`.
+   --model opus --effort medium`, `--name issue-<n>`, and `--remote-control "<CODE><n> - <goal>"`:
+   CODE is the repo's short code (`TLOEI`, `SD`, `TGL`), n the issue number, goal 2-5 words from
+   the title, e.g. `TLOEI245 - Bugs and rule breaks`. Never a bare code; check the pane footer.
 4. Set its tracker step to `active` and add a log line. For the run's first worker only, send
    "handshake ok?" and wait for the reply to prove delivery works.
 

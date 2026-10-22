@@ -90,7 +90,8 @@ tmux new-session -d -s "issue-<n>" -c "$MAIN" \
 
 - Workers run Opus at medium effort and pick subagent models per task (global AGENTS.md
   "Choosing models"). Never let a worker inherit this session's model; never Fable.
-- Remote-control name: `<CODE><n> - <short goal>`, no `#`, no em dash (`SD` Snow Day, `TGL` golf league).
+- Remote-control name: `<CODE><n> - <short goal>`, e.g. `TLOEI245 - Bugs and rule breaks`; no `#`,
+  no em dash (`SD` Snow Day, `TGL` golf league). Fill every placeholder; never a bare code.
 - Verify after ~15s with `tmux capture-pane -t issue-<n> -p | tail -20`. `/rc failed` in the
   footer is not a dead worker; check its `ListAgents` row (see gotchas).
 - **Push mode:** workers message you directly at the address in their kickoff, so they need no

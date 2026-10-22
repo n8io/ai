@@ -1,5 +1,11 @@
 # @n8io/ai-config
 
+## 1.1.2
+
+### Patch Changes
+
+- cf46781: ship, ticket-loop: spell out the worker Remote Control name with an example (`TLOEI245 - Bugs and rule breaks`) and a pane-footer check, so a bare repo code is never used as the name.
+
 ## 1.1.1
 
 ### Patch Changes

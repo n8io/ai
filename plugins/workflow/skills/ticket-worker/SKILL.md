@@ -81,7 +81,7 @@ Send ONE line at exactly these five moments and no others:
 3. **Size-budget overage**: your real numbers against the budget. Then WAIT.
 4. **Decision gate**: the question, verbatim. Then WAIT.
 5. **Finished**: `MERGED <sha>` or `ABORTED <reason>`, sent AFTER your own cleanup (label
-   removed, worktree removed, back on main).
+   removed, worktree removed, browser tabs closed, back on main).
 
 No progress narration. Each message costs the orchestrator a turn, and repeats are rate-limited
 and dropped. If a send fails, do not retry in a loop; fold it into your next report.
@@ -159,10 +159,12 @@ Do NOT open the PR and then park.
 - Then the repo's final CI step (`next-issue` Step 10), the pre-merge rebase check, and
   squash-merge immediately. Do not schedule another wait.
 - After the merge lands, finish your own cleanup BEFORE going idle: remove the `in-progress`
-  label, remove your worktree, then `git -C <primary checkout> merge --ff-only origin/main`
-  (never `update-ref`: it leaves that checkout's files as staged reverts). Then report.
+  label, remove your worktree, close every tab in your claude-in-chrome group (`tabs_context_mcp`,
+  then `tabs_close_mcp` on each; the last close removes the group), then `git -C <primary checkout>
+  merge --ff-only origin/main` (never `update-ref`: it leaves that checkout's files as staged
+  reverts). Then report.
 - If your login expires, STOP and report that you need re-auth. Do not spin.
-- On abort, always release the `in-progress` label.
+- On abort, always release the `in-progress` label and close your browser tabs.
 
 ## 7. Wrap-up
 

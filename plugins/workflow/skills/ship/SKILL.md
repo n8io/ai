@@ -15,6 +15,9 @@ Built on: `idea-to-tickets` (grill and decompose), `ticket-worker` (the worker c
 `next-issue` (the per-ticket steps and `../next-issue/references/ticket-selection.md`),
 `../ticket-loop/references/kickoff.md` and `../ticket-loop/references/orchestrator-gotchas.md`
 (paths relative to this skill's directory), and `progress-tracker`.
+If the Skill tool can't load one of these (it says "Unknown skill"), Read its SKILL.md from this
+plugin's `skills/` directory instead, and give each kickoff the absolute paths to
+`ticket-worker/SKILL.md` and `next-issue/SKILL.md` so workers can do the same.
 `ticket-loop` is legacy only as an entry point: the steps and references cited here are ship's
 own building blocks and stay maintained. `parallel-tickets` retires.
 

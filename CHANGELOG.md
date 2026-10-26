@@ -1,5 +1,12 @@
 # @n8io/ai-config
 
+## 1.1.3
+
+### Patch Changes
+
+- ed8c8a6: ticket-worker: close every tab in the worker's claude-in-chrome group as part of cleanup (after merge and on abort), so finished workers leave no tab groups behind.
+- 4b86228: ship, ticket-worker: when the Skill tool says Unknown skill, read SKILL.md from the plugin by absolute path; UI tickets put phone-width screenshots of every changed screen on the PR before merging.
+
 ## 1.1.2
 
 ### Patch Changes

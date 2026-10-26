@@ -128,11 +128,14 @@ the five moments above are the report. No `SendMessage`, `ListAgents` or `send_m
 - **Screenshots** for browser verification go in a scratch dir inside your worktree (e.g.
   `<worktree>/tmp/`), not `/tmp`. Do not `Read` them back into context: check them by script
   (dimensions, not blank) or read one downscaled copy.
-- **Load skills with the Skill tool**, never by `cat` of a skill file in a checkout.
+- **Load skills with the Skill tool**, never by `cat` of a skill file in a checkout. If it
+  says "Unknown skill", Read the SKILL.md at the absolute path your kickoff gives.
 - **Media goes directly on the PR or issue.** Open it on github.com with the claude-in-chrome
   tools, edit the description, upload with `file_upload`, save. If the browser tools are
   unavailable or the upload fails twice, publish without images and say so in your Finished
   report. Never create a branch for images. `projects` mode: see the reference's evidence rule.
+- **UI changes need screenshots on the PR before merge**: every changed screen at phone width,
+  from the repo's emulator or browser. No screenshots means not merge-ready.
 - **Models.** Follow the global AGENTS.md "Choosing models" section: tag each plan task opus,
   sonnet or haiku when you dispatch it, and give implementers the context pack slice instead of
   telling them to explore.

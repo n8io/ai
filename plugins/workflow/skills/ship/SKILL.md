@@ -74,6 +74,9 @@ other always-on services, global installs, writing `.env` or other secret files,
 outside services, clicking through cloud consoles. Look for these in every ticket now and get
 the user's typed approval for each, in the same batched rounds. Quote the approval in the
 kickoff as a settled decision, so workers don't stall on a permission prompt mid-ticket.
+Also list every credential a ticket's outward action needs (CLI login scopes such as
+`gh` `workflow` for pushing workflow files, tokens a created repo needs) and get them now,
+not when the worker reaches the step.
 
 **Environment preflight.** Reach every host in the pack's `## External hosts` from this
 environment (`curl -sSI <url>`) before any ticket starts. A blocked host is a blocker: say so

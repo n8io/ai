@@ -82,6 +82,7 @@ The agent that plans or dispatches the work picks a model for each task, by what
 
 - Start sessions with `cs` (from the tools plugin): tmux, bypassed permissions, Claude in Chrome, and a Remote Control named after the repo and branch. Workers spawned by an orchestrator use the same flags so cross-session messages are never held.
 - For work you expect to run longer than about 30 minutes, publish a live tracker with the `progress-tracker` skill and give me the link once. Update it at each step; I peek when I want to.
+- Nothing you start runs more than 20 minutes without you checking on it: workers, background commands, containers, compose stacks, dev servers. Use wakeups of 20 minutes or less, and stop anything that has no owner.
 
 ### Improving skills and memory
 

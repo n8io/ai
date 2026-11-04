@@ -104,7 +104,7 @@ tmux new-session -d -s "issue-<n>" -c "$MAIN" \
 - **Notifications:** PushNotification only when the user must answer (a relayed question, a
   permission prompt, re-auth). Everything else goes in chat.
 - **Push mode:** do not poll. Worker reports arrive as messages and start your turn. Keep one
-  fallback wakeup at ~1800s, re-armed each time; when it fires with nothing new, do one free
+  fallback wakeup at ≤1200s, re-armed each time; when it fires with nothing new, do one free
   check (`tmux has-session` + `git ls-remote`) plus one REST read of the PR or issue, then go quiet.
 - **Poll mode:** follow the cadence table in `references/orchestrator-gotchas.md`.
 - A worker's question arrives as a kind-2 or kind-4 report: ask it here via AskUserQuestion and

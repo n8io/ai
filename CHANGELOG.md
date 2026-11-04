@@ -1,5 +1,12 @@
 # @n8io/ai-config
 
+## 1.1.4
+
+### Patch Changes
+
+- 3723c67: ship: bedtime preflight also collects every credential a ticket's outward action needs (CLI login scopes such as `gh` `workflow`, tokens a created repo needs), so workers never stop mid-run for a login.
+- 7725791: ship, ticket-worker, global AGENTS.md: nothing a run starts goes more than 20 minutes unchecked. Orchestrator wakeups are ≤1200s and sweep worker panes, background tasks and `docker ps`; workers remove every container and compose stack they started before reporting.
+
 ## 1.1.3
 
 ### Patch Changes

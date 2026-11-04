@@ -187,7 +187,7 @@ Poll-mode cadence (ScheduleWakeup-paced; never a busy loop, never a foreground s
   "validate + integration are green on <sha> — proceed to squash-merge"). This is the one place
   a REST call in the wait phase is justified; it resumes them immediately. In push mode this
   situation is rarer by construction — a worker that opened a PR has already reported it, so you
-  know the clock started — but a worker can still park silently, which is what the ~1800s
+  know the clock started — but a worker can still park silently, which is what the ≤1200s
   fallback wakeup is for.
 - **Worker blocked by a Claude Code onboarding modal** (e.g. "Set up auto mode?"). capture-pane
   shows a numbered menu, not a work question — the worker is blocked on a keypress it cannot

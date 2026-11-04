@@ -134,7 +134,9 @@ update the step yourself from its reports.
   Recompute ready and dispatch immediately. Dependents always start from fresh `main` after
   the merge, never stacked on an open branch.
 
-Waiting: push mode keeps one ~1800s fallback wakeup and otherwise sleeps until a report
+Waiting: nothing the run started goes more than 20 minutes unchecked. Keep one ≤1200s wakeup;
+each one checks every live worker pane, every background task, and `docker ps` for containers
+started since the run began, and stops anything with no owner. Otherwise sleep until a report
 arrives. Everything else (stuck workers, pane drafts, expired logins, merge blocks) follows
 `../ticket-loop/references/orchestrator-gotchas.md`.
 

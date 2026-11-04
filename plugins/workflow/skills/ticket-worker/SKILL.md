@@ -81,7 +81,8 @@ Send ONE line at exactly these five moments and no others:
 3. **Size-budget overage**: your real numbers against the budget. Then WAIT.
 4. **Decision gate**: the question, verbatim. Then WAIT.
 5. **Finished**: `MERGED <sha>` or `ABORTED <reason>`, sent AFTER your own cleanup (label
-   removed, worktree removed, browser tabs closed, back on main).
+   removed, every container and compose stack you started removed, worktree removed, browser
+   tabs closed, back on main).
 
 No progress narration. Each message costs the orchestrator a turn, and repeats are rate-limited
 and dropped. If a send fails, do not retry in a loop; fold it into your next report.
